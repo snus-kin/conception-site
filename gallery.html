@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Poster Gallery | Conception</title>
+        <meta
+            name="description"
+            content="Event poster artwork from Conception, Leeds' experimental open mic night. Designs by local artists."
+        />
+        <link
+            rel="canonical"
+            href="https://conceivedconception.neocities.org/gallery.html"
+        />
+
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:url"
+            content="https://conceivedconception.neocities.org/gallery.html"
+        />
+        <meta property="og:title" content="Poster Gallery | Conception" />
+        <meta
+            property="og:description"
+            content="Event poster artwork from Conception, Leeds' experimental open mic night. Designs by local artists."
+        />
+        <meta
+            property="og:image"
+            content="https://conceivedconception.neocities.org/Images/mystro%20icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="https://conceivedconception.neocities.org/Images/faviconcept.png"
+        />
+        <link href="style.css" rel="stylesheet" type="text/css" media="all" />
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "ImageGallery",
+                "name": "Conception Poster Gallery",
+                "description": "Event poster artwork from Conception, Leeds' experimental open mic night",
+                "url": "https://conceivedconception.neocities.org/gallery.html",
+                "image": [
+                    "https://conceivedconception.neocities.org/Images/poster1.png",
+                    "https://conceivedconception.neocities.org/Images/poster2.png",
+                    "https://conceivedconception.neocities.org/Images/poster3.png",
+                    "https://conceivedconception.neocities.org/Images/poster4.png",
+                    "https://conceivedconception.neocities.org/Images/poster5.png",
+                    "https://conceivedconception.neocities.org/Images/poster6.png",
+                    "https://conceivedconception.neocities.org/Images/poster7.png"
+                ]
+            }
+        </script>
+    </head>
+    <body>
+        <div class="page-container">
+            <h1 class="page-title">Poster Gallery</h1>
+
+            <!--
+                To add a new poster:
+                1. Copy a gallery-item block
+                2. Update the image src and alt
+                3. Update the credit link and name
+            -->
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster1.png"
+                        alt="Conception poster by William Burroughs"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/thatdamnculprit/"
+                            >William Burroughs (@thatdamnculprit)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster2.png"
+                        alt="Conception poster by Tom Carroll"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/sn_fk_n/"
+                            >Tom Carroll (@sn_fk_n)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster3.png"
+                        alt="Conception poster by Reece"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/reeces_art_pieces_/"
+                            >Reece (@reeces_art_pieces_)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster4.png"
+                        alt="Conception poster by Leela Jean"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/leelajeangenie/"
+                            >Leela Jean (@leelajeangenie)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster5.png"
+                        alt="Conception poster by Leonard Baske"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/r_u_art/"
+                            >Leonard Baske (@r_u_art)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster6.png"
+                        alt="Conception poster by Lucas Paw"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/theundeadcat/"
+                            >Lucas Paw (@theundeadcat)</a
+                        >
+                    </p>
+                </div>
+
+                <div class="gallery-item">
+                    <img
+                        src="https://conceivedconception.neocities.org/Images/poster7.png"
+                        alt="Conception poster by Rosalind Murray"
+                        onclick="openLightbox(this.src)"
+                    />
+                    <p class="credit">
+                        <a href="https://www.instagram.com/rozzieboss/"
+                            >Rosalind Murray (@rozzieboss)</a
+                        >
+                    </p>
+                </div>
+            </div>
+
+            <p class="decorative">♫</p>
+        </div>
+
+        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+            <div class="lightbox-container">
+                <span class="lightbox-close" onclick="closeLightbox()"
+                    >&times;</span
+                >
+                <img id="lightbox-img" src="" alt="Expanded poster" />
+            </div>
+        </div>
+
+        <a href="index.html" class="footer">
+            <p>RETURN HOME</p>
+        </a>
+
+        <script>
+            function openLightbox(src) {
+                document.getElementById("lightbox-img").src = src;
+                document.getElementById("lightbox").classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeLightbox() {
+                document.getElementById("lightbox").classList.remove("active");
+                document.body.style.overflow = "";
+            }
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") {
+                    closeLightbox();
+                }
+            });
+        </script>
+    </body>
+</html>
