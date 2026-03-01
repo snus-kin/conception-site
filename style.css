@@ -5,8 +5,8 @@
 :root {
     --color-primary: #000000;
     --color-background: #ffffff;
-    --color-accent: #c41e3a;
-    --color-accent-hover: #8b0000;
+    --color-accent: #000000;
+    --color-accent-hover: #333333;
     --color-secondary: #333333;
     --color-border: #666666;
     --color-inverse-text: #ffffff;
@@ -25,6 +25,37 @@ body {
     line-height: 1.6;
     background-color: var(--color-background);
     color: var(--color-primary);
+}
+
+/* =============================================
+   ACCESSIBILITY UTILITIES
+   ============================================= */
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-primary);
+    color: var(--color-inverse-text);
+    padding: 0.5rem 1rem;
+    z-index: 100;
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 /* =============================================
@@ -174,7 +205,17 @@ a:active {
 /* Focus state for keyboard navigation (a11y) */
 a:focus {
     color: var(--color-accent-hover);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+a:focus:not(:focus-visible) {
     outline: none;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 .nav-links {
@@ -287,12 +328,6 @@ a:focus {
    GALLERY PAGE
    ============================================= */
 
-.gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
 .gallery-item {
     display: flex;
     flex-direction: column;
@@ -338,7 +373,30 @@ a:focus {
 .gallery-grid .gallery-item img {
     width: 100%;
     height: auto;
+}
+
+/* Gallery image buttons */
+.gallery-button {
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
+    display: block;
+    width: 100%;
+}
+
+.gallery-button:focus {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.gallery-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.gallery-button:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 .gallery-grid .gallery-item .credit {
@@ -387,13 +445,21 @@ a:focus {
 .lightbox-close {
     position: absolute;
     top: 1rem;
-    right: 0;
-    color: var(--color-inverse-text);
-    font-size: 3rem;
-    font-weight: bold;
+    right: 1rem;
+    width: 3rem;
+    height: 3rem;
+    color: var(--color-primary);
+    background: var(--color-inverse-text);
+    border: 2px solid var(--color-inverse-text);
+    font-size: 1.5rem;
+    font-weight: normal;
     cursor: pointer;
-    line-height: 1;
-    padding: 0.5rem;
+    line-height: 0;
+    padding: 0;
+    padding-bottom: 0.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .lightbox-close:hover {
@@ -402,7 +468,17 @@ a:focus {
 
 .lightbox-close:focus {
     color: var(--color-accent);
+    outline: 2px solid var(--color-inverse-text);
+    outline-offset: 2px;
+}
+
+.lightbox-close:focus:not(:focus-visible) {
     outline: none;
+}
+
+.lightbox-close:focus-visible {
+    outline: 2px solid var(--color-inverse-text);
+    outline-offset: 2px;
 }
 
 /* =============================================
@@ -413,7 +489,7 @@ a:focus {
     text-align: center;
     font-size: 1.5rem;
     margin: 2rem 0;
-    color: var(--color-accent);
+    color: var(--color-primary);
 }
 
 /* =============================================
@@ -443,16 +519,34 @@ a:focus {
     color: var(--color-inverse-text);
 }
 
+.footer:hover {
+    background-color: var(--color-inverse-text);
+}
+
 .footer:hover p {
-    color: var(--color-accent);
+    color: var(--color-primary);
 }
 
 .footer:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+}
+
+.footer:focus:not(:focus-visible) {
     outline: none;
 }
 
+.footer:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+}
+
+.footer:focus {
+    background-color: var(--color-inverse-text);
+}
+
 .footer:focus p {
-    color: var(--color-accent);
+    color: var(--color-primary);
 }
 
 /* =============================================
@@ -471,13 +565,6 @@ a:focus {
     margin: 0 auto;
     padding: 2rem;
     text-align: center;
-}
-
-.home-link {
-    display: inline-block;
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    font-weight: bold;
-    margin-top: 1rem;
 }
 
 /* =============================================
@@ -544,10 +631,6 @@ img {
 
     .main-image {
         order: 6;
-    }
-
-    .gallery {
-        gap: 1.5rem;
     }
 
     .faq-item {

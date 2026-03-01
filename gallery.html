@@ -53,117 +53,224 @@
         </script>
     </head>
     <body>
-        <div class="page-container">
-            <h1 class="page-title">Poster Gallery</h1>
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+        <main id="main-content">
+            <div class="page-container">
+                <h1 class="page-title">Poster Gallery</h1>
 
-            <!--
+                <!--
                 To add a new poster:
                 1. Copy a gallery-item block
                 2. Update the image src and alt
                 3. Update the credit link and name
             -->
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster1.png"
-                        alt="Conception poster by William Burroughs"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/thatdamnculprit/"
-                            >William Burroughs (@thatdamnculprit)</a
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster1.png', 'Conception poster by William Burroughs')"
+                            aria-label="View full size: Conception poster by William Burroughs"
                         >
-                    </p>
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster1.png"
+                                alt="Conception poster by William Burroughs"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/thatdamnculprit/"
+                                rel="noopener"
+                                target="_blank"
+                                >William Burroughs (@thatdamnculprit)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster2.png', 'Conception poster by Tom Carroll')"
+                            aria-label="View full size: Conception poster by Tom Carroll"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster2.png"
+                                alt="Conception poster by Tom Carroll"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/sn_fk_n/"
+                                rel="noopener"
+                                target="_blank"
+                                >Tom Carroll (@sn_fk_n)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster3.png', 'Conception poster by Reece')"
+                            aria-label="View full size: Conception poster by Reece"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster3.png"
+                                alt="Conception poster by Reece"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/reeces_art_pieces_/"
+                                rel="noopener"
+                                target="_blank"
+                                >Reece (@reeces_art_pieces_)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster4.png', 'Conception poster by Leela Jean')"
+                            aria-label="View full size: Conception poster by Leela Jean"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster4.png"
+                                alt="Conception poster by Leela Jean"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/leelajeangenie/"
+                                rel="noopener"
+                                target="_blank"
+                                >Leela Jean (@leelajeangenie)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster5.png', 'Conception poster by Leonard Baske')"
+                            aria-label="View full size: Conception poster by Leonard Baske"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster5.png"
+                                alt="Conception poster by Leonard Baske"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/r_u_art/"
+                                rel="noopener"
+                                target="_blank"
+                                >Leonard Baske (@r_u_art)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster6.png', 'Conception poster by Lucas Paw')"
+                            aria-label="View full size: Conception poster by Lucas Paw"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster6.png"
+                                alt="Conception poster by Lucas Paw"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/theundeadcat/"
+                                rel="noopener"
+                                target="_blank"
+                                >Lucas Paw (@theundeadcat)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
+
+                    <div class="gallery-item">
+                        <button
+                            type="button"
+                            class="gallery-button"
+                            onclick="openLightbox('https://conceivedconception.neocities.org/Images/poster7.png', 'Conception poster by Rosalind Murray')"
+                            aria-label="View full size: Conception poster by Rosalind Murray"
+                        >
+                            <img
+                                src="https://conceivedconception.neocities.org/Images/poster7.png"
+                                alt="Conception poster by Rosalind Murray"
+                            />
+                        </button>
+                        <p class="credit">
+                            <a
+                                href="https://www.instagram.com/rozzieboss/"
+                                rel="noopener"
+                                target="_blank"
+                                >Rosalind Murray (@rozzieboss)<span
+                                    class="visually-hidden"
+                                >
+                                    (opens in new tab)</span
+                                ></a
+                            >
+                        </p>
+                    </div>
                 </div>
 
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster2.png"
-                        alt="Conception poster by Tom Carroll"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/sn_fk_n/"
-                            >Tom Carroll (@sn_fk_n)</a
-                        >
-                    </p>
-                </div>
-
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster3.png"
-                        alt="Conception poster by Reece"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/reeces_art_pieces_/"
-                            >Reece (@reeces_art_pieces_)</a
-                        >
-                    </p>
-                </div>
-
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster4.png"
-                        alt="Conception poster by Leela Jean"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/leelajeangenie/"
-                            >Leela Jean (@leelajeangenie)</a
-                        >
-                    </p>
-                </div>
-
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster5.png"
-                        alt="Conception poster by Leonard Baske"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/r_u_art/"
-                            >Leonard Baske (@r_u_art)</a
-                        >
-                    </p>
-                </div>
-
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster6.png"
-                        alt="Conception poster by Lucas Paw"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/theundeadcat/"
-                            >Lucas Paw (@theundeadcat)</a
-                        >
-                    </p>
-                </div>
-
-                <div class="gallery-item">
-                    <img
-                        src="https://conceivedconception.neocities.org/Images/poster7.png"
-                        alt="Conception poster by Rosalind Murray"
-                        onclick="openLightbox(this.src)"
-                    />
-                    <p class="credit">
-                        <a href="https://www.instagram.com/rozzieboss/"
-                            >Rosalind Murray (@rozzieboss)</a
-                        >
-                    </p>
-                </div>
+                <p class="decorative" aria-hidden="true">♫</p>
             </div>
+        </main>
 
-            <p class="decorative">♫</p>
-        </div>
-
-        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-            <div class="lightbox-container">
-                <span class="lightbox-close" onclick="closeLightbox()"
-                    >&times;</span
+        <div
+            class="lightbox"
+            id="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Expanded poster view"
+            onclick="closeLightbox()"
+        >
+            <div class="lightbox-container" onclick="event.stopPropagation()">
+                <button
+                    type="button"
+                    class="lightbox-close"
+                    id="lightbox-close"
+                    onclick="closeLightbox()"
+                    aria-label="Close lightbox"
                 >
-                <img id="lightbox-img" src="" alt="Expanded poster" />
+                    &times;
+                </button>
+                <img id="lightbox-img" src="" alt="" />
             </div>
         </div>
 
@@ -172,20 +279,51 @@
         </a>
 
         <script>
-            function openLightbox(src) {
-                document.getElementById("lightbox-img").src = src;
-                document.getElementById("lightbox").classList.add("active");
+            let lastFocusedElement = null;
+
+            function openLightbox(src, altText) {
+                lastFocusedElement = document.activeElement;
+                const lightbox = document.getElementById("lightbox");
+                const lightboxImg = document.getElementById("lightbox-img");
+                const closeBtn = document.getElementById("lightbox-close");
+
+                lightboxImg.src = src;
+                lightboxImg.alt = altText || "Expanded poster";
+                lightbox.classList.add("active");
                 document.body.style.overflow = "hidden";
+
+                // Focus the close button for keyboard users
+                setTimeout(function () {
+                    closeBtn.focus();
+                }, 50);
             }
 
             function closeLightbox() {
-                document.getElementById("lightbox").classList.remove("active");
+                const lightbox = document.getElementById("lightbox");
+                lightbox.classList.remove("active");
                 document.body.style.overflow = "";
+
+                // Return focus to the element that opened the lightbox
+                if (lastFocusedElement) {
+                    lastFocusedElement.focus();
+                    lastFocusedElement = null;
+                }
             }
 
             document.addEventListener("keydown", function (e) {
+                const lightbox = document.getElementById("lightbox");
+                if (!lightbox.classList.contains("active")) return;
+
                 if (e.key === "Escape") {
                     closeLightbox();
+                }
+
+                // Trap focus within the lightbox
+                if (e.key === "Tab") {
+                    const closeBtn = document.getElementById("lightbox-close");
+                    // Only one focusable element, so just keep focus on it
+                    e.preventDefault();
+                    closeBtn.focus();
                 }
             });
         </script>
