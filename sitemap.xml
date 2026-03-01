@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://conceivedconception.neocities.org/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/when.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/what.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/who.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/words.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/faq.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/testimonials.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://conceivedconception.neocities.org/gallery.html</loc>
+    <priority>0.7</priority>
+  </url>
+</urlset>
