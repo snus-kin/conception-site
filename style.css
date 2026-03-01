@@ -2,6 +2,16 @@
    CONCEPTION - Main Stylesheet
    ============================================= */
 
+:root {
+    --color-primary: #000000;
+    --color-background: #ffffff;
+    --color-accent: #c41e3a;
+    --color-accent-hover: #8b0000;
+    --color-secondary: #333333;
+    --color-border: #666666;
+    --color-inverse-text: #ffffff;
+}
+
 /* Reset and base */
 * {
     box-sizing: border-box;
@@ -13,7 +23,8 @@ body {
     font-family: "Lucida Console", "Courier New", monospace;
     padding: 1rem;
     line-height: 1.6;
-    background-color: white;
+    background-color: var(--color-background);
+    color: var(--color-primary);
 }
 
 /* =============================================
@@ -70,6 +81,7 @@ body {
     font-size: clamp(2rem, 6vw, 3.5rem);
     font-weight: bold;
     margin: 0 !important;
+    color: var(--color-primary);
 }
 
 .page-title {
@@ -80,22 +92,26 @@ body {
     hyphens: auto;
     -webkit-hyphens: auto;
     -ms-hyphens: auto;
+    color: var(--color-primary);
 }
 
 h2 {
     font-size: clamp(1.2rem, 3vw, 1.5rem);
     margin-bottom: 1rem;
+    color: var(--color-primary);
 }
 
 h3 {
     font-size: clamp(1.1rem, 3vw, 1.3rem);
     margin-bottom: 1rem;
+    color: var(--color-primary);
 }
 
 p {
     font-size: clamp(0.9rem, 2.5vw, 1rem);
     line-height: 1.6;
     margin-bottom: 1rem;
+    color: var(--color-primary);
 }
 
 /* =============================================
@@ -140,19 +156,25 @@ p {
    ============================================= */
 
 a:link {
-    color: red;
+    color: var(--color-accent);
 }
 
 a:visited {
-    color: black;
+    color: var(--color-accent);
 }
 
 a:hover {
-    color: hotpink;
+    color: var(--color-accent-hover);
 }
 
 a:active {
-    color: blue;
+    color: var(--color-accent-hover);
+}
+
+/* Focus state for keyboard navigation (a11y) */
+a:focus {
+    color: var(--color-accent-hover);
+    outline: none;
 }
 
 .nav-links {
@@ -223,6 +245,7 @@ a:active {
     font-style: italic;
     margin-bottom: 0.5rem;
     padding-left: 0.5rem;
+    color: var(--color-secondary);
 }
 
 /* =============================================
@@ -246,7 +269,7 @@ a:active {
 .faq-item p {
     font-size: clamp(0.85rem, 2vw, 1rem);
     font-style: italic;
-    color: #333;
+    color: var(--color-secondary);
 }
 
 .faq-item a {
@@ -256,7 +279,7 @@ a:active {
 .contact-info {
     margin-top: 2rem;
     padding-top: 1rem;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-border);
     font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
@@ -286,16 +309,16 @@ a:active {
 
 .gallery-item .credit {
     font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-    color: red;
+    color: var(--color-accent);
     margin-top: 0.75rem;
 }
 
 .gallery-item .credit a {
-    color: red;
+    color: var(--color-accent);
 }
 
 .gallery-item .credit a:hover {
-    color: hotpink;
+    color: var(--color-accent-hover);
 }
 
 /* =============================================
@@ -365,7 +388,7 @@ a:active {
     position: absolute;
     top: 1rem;
     right: 0;
-    color: white;
+    color: var(--color-inverse-text);
     font-size: 3rem;
     font-weight: bold;
     cursor: pointer;
@@ -374,7 +397,12 @@ a:active {
 }
 
 .lightbox-close:hover {
-    color: hotpink;
+    color: var(--color-accent);
+}
+
+.lightbox-close:focus {
+    color: var(--color-accent);
+    outline: none;
 }
 
 /* =============================================
@@ -385,6 +413,7 @@ a:active {
     text-align: center;
     font-size: 1.5rem;
     margin: 2rem 0;
+    color: var(--color-accent);
 }
 
 /* =============================================
@@ -397,7 +426,7 @@ a:active {
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: black;
+    background-color: var(--color-primary);
     text-decoration: none;
 }
 
@@ -406,16 +435,24 @@ a:active {
     margin: 0 auto;
     padding: 0.5rem;
     text-align: center;
-    color: white;
+    color: var(--color-inverse-text);
     font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 .footer:visited p {
-    color: white;
+    color: var(--color-inverse-text);
 }
 
 .footer:hover p {
-    color: hotpink;
+    color: var(--color-accent);
+}
+
+.footer:focus {
+    outline: none;
+}
+
+.footer:focus p {
+    color: var(--color-accent);
 }
 
 /* =============================================
@@ -539,5 +576,19 @@ img {
 
     .two-column-layout {
         gap: 3rem;
+    }
+}
+
+/* =============================================
+   REDUCED MOTION (a11y)
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
