@@ -7,9 +7,27 @@
     --color-background: #ffffff;
     --color-accent: #000000;
     --color-accent-hover: #333333;
-    --color-secondary: #333333;
+    --color-secondary: #555555;
     --color-border: #666666;
     --color-inverse-text: #ffffff;
+
+    /* Typography Scale - Minimal & Hierarchical */
+    --font-size-xs: 0.875rem;
+    --font-size-sm: 1rem;
+    --font-size-base: 1.125rem;
+    --font-size-lg: 1.5rem;
+    --font-size-xl: 2rem;
+    --font-size-2xl: 2.75rem;
+    --font-size-3xl: 3.5rem;
+
+    /* Fluid typography clamps */
+    --fluid-xs: clamp(0.8rem, 1.5vw, var(--font-size-xs));
+    --fluid-sm: clamp(0.875rem, 2vw, var(--font-size-sm));
+    --fluid-base: clamp(1rem, 2.5vw, var(--font-size-base));
+    --fluid-lg: clamp(1.25rem, 3vw, var(--font-size-lg));
+    --fluid-xl: clamp(1.5rem, 4vw, var(--font-size-xl));
+    --fluid-2xl: clamp(2rem, 5vw, var(--font-size-2xl));
+    --fluid-3xl: clamp(2.5rem, 7vw, var(--font-size-3xl));
 }
 
 /* Reset and base */
@@ -25,6 +43,7 @@ body {
     line-height: 1.6;
     background-color: var(--color-background);
     color: var(--color-primary);
+    font-size: var(--font-size-base);
 }
 
 /* =============================================
@@ -90,18 +109,21 @@ body {
 }
 
 /* =============================================
-   TYPOGRAPHY
+   TYPOGRAPHY - Hierarchical Scale
    ============================================= */
 
+/* Level 1: Site title (largest) */
 .site-title {
-    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-size: var(--fluid-3xl);
     font-weight: bold;
     margin: 0 !important;
     color: var(--color-primary);
 }
 
+/* Level 2: Page titles */
 .page-title {
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-size: var(--fluid-2xl);
+    font-weight: bold;
     margin-bottom: 2rem;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -111,23 +133,43 @@ body {
     color: var(--color-primary);
 }
 
+/* Level 3: Section headings */
 h2 {
-    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-size: var(--fluid-xl);
+    font-weight: bold;
     margin-bottom: 1rem;
     color: var(--color-primary);
 }
 
+/* Level 4: Subsection headings */
 h3 {
-    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    font-size: var(--fluid-lg);
+    font-weight: bold;
     margin-bottom: 1rem;
     color: var(--color-primary);
 }
 
+/* Body text */
 p {
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-size: var(--fluid-base);
     line-height: 1.6;
     margin-bottom: 1rem;
     color: var(--color-primary);
+}
+
+/* =============================================
+   SEMANTIC TEXT STYLES
+   ============================================= */
+
+/* Emphasis: used for inline emphasis within text */
+em {
+    font-style: italic;
+}
+
+/* Caption text: smallest text for credits, captions, notes */
+.text-caption {
+    font-size: var(--fluid-xs);
+    color: var(--color-secondary);
 }
 
 /* =============================================
@@ -135,7 +177,7 @@ p {
    ============================================= */
 
 .event-details {
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-size: var(--fluid-base);
     line-height: 1.6;
 }
 
@@ -148,11 +190,7 @@ p {
    ============================================= */
 
 .text-content p {
-    font-size: clamp(0.85rem, 2vw, 1rem);
-}
-
-.text-content .small-text {
-    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+    font-size: var(--fluid-sm);
 }
 
 .intro {
@@ -160,7 +198,7 @@ p {
 }
 
 .intro p {
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: var(--fluid-base);
 }
 
 .intro p:first-child {
@@ -214,7 +252,7 @@ a:focus-visible {
 }
 
 .nav-links li a {
-    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-size: var(--fluid-sm);
 }
 
 .links-list {
@@ -228,7 +266,7 @@ a:focus-visible {
 }
 
 .links-list a {
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-size: var(--fluid-lg);
 }
 
 .cta-links {
@@ -239,7 +277,7 @@ a:focus-visible {
     display: block;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-size: var(--fluid-sm);
 }
 
 /* =============================================
@@ -255,19 +293,19 @@ a:focus-visible {
 }
 
 .content-list li {
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: var(--fluid-base);
     line-height: 1.6;
     margin-bottom: 0.75rem;
 }
 
 .events-list li {
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-size: var(--fluid-sm);
     line-height: 1.8;
     padding: 0.25rem 0;
 }
 
 .concepts-list li {
-    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-size: var(--fluid-xs);
     font-style: italic;
     margin-bottom: 0.5rem;
     padding-left: 0.5rem;
@@ -283,7 +321,7 @@ a:focus-visible {
 }
 
 .faq-item h3 {
-    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-size: var(--fluid-lg);
     margin-bottom: 0.5rem;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -293,8 +331,7 @@ a:focus-visible {
 }
 
 .faq-item p {
-    font-size: clamp(0.85rem, 2vw, 1rem);
-    font-style: italic;
+    font-size: var(--fluid-sm);
     color: var(--color-secondary);
 }
 
@@ -306,7 +343,27 @@ a:focus-visible {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--color-border);
-    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-size: var(--fluid-sm);
+}
+
+/* =============================================
+   TESTIMONIALS
+   ============================================= */
+
+.testimonial {
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-quote {
+    font-size: var(--fluid-base);
+    font-style: italic;
+    color: var(--color-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.testimonial-attribution {
+    font-size: var(--fluid-sm);
+    color: var(--color-primary);
 }
 
 /* =============================================
@@ -328,7 +385,7 @@ a:focus-visible {
 }
 
 .gallery-item .credit {
-    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-size: var(--fluid-sm);
     color: var(--color-accent);
     margin-top: 0.75rem;
 }
@@ -385,7 +442,7 @@ a:focus-visible {
 }
 
 .gallery-grid .gallery-item .credit {
-    font-size: 0.9rem;
+    font-size: var(--fluid-sm);
     margin-top: 0.5rem;
 }
 
@@ -436,7 +493,7 @@ a:focus-visible {
     color: var(--color-primary);
     background: var(--color-inverse-text);
     border: 2px solid var(--color-inverse-text);
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     font-weight: normal;
     cursor: pointer;
     line-height: 0;
@@ -472,7 +529,7 @@ a:focus-visible {
 
 .decorative {
     text-align: center;
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     margin: 2rem 0;
     color: var(--color-primary);
 }
@@ -497,7 +554,7 @@ a:focus-visible {
     padding: 0.5rem;
     text-align: center;
     color: var(--color-inverse-text);
-    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-size: var(--fluid-sm);
 }
 
 .footer:visited p {
