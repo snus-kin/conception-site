@@ -48,6 +48,7 @@ body {
 
 .right-column {
     gap: 1rem;
+    text-align: right;
 }
 
 .right-column > * {
@@ -474,6 +475,13 @@ img {
     .left-column,
     .right-column {
         display: contents;
+    }
+
+    /* Reset text alignment for mobile (right-column uses display: contents) */
+    .site-title,
+    .event-details,
+    .right-column nav {
+        text-align: left;
     }
 
     /* Mobile order: small image (1) -> title/details/nav (2) -> text (3) -> large image (4) */
