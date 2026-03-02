@@ -1,0 +1,67 @@
+name: Update LD-JSON
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '*.html'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-ld-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Run LD-JSON generation script
+        run: |
+          chmod +x scripts/generate_ld_json.py
+          ./scripts/generate_ld_json.py
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet -- '*.html'; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update LD-JSON structured data'
+          title: 'chore: Update LD-JSON structured data'
+          body: |
+            This PR was automatically generated to update the LD-JSON structured data in HTML files.
+
+            The structured data has been regenerated based on the current page content to ensure
+            schema.org markup is accurate and up-to-date.
+
+            ---
+            *This PR was created automatically by the Update LD-JSON workflow.*
+          branch: update-ld-json
+          delete-branch: true
+          labels: |
+            automated
+            seo
