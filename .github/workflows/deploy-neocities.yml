@@ -3,7 +3,7 @@ name: Deploy to Neocities
 on:
   push:
     branches:
-      - main
+      - master
 
   schedule:
     # Run daily at 6 AM UTC to check for Neocities changes
