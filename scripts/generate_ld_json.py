@@ -440,7 +440,11 @@ def find_existing_ld_json(soup: BeautifulSoup) -> list:
 
 
 def update_or_insert_ld_json(html_content: str, ld_json: dict[str, Any]) -> str:
-    """Update existing LD-JSON or insert a new one in the HTML."""
+    """Update existing LD-JSON or insert a new one in the HTML.
+
+    Uses BeautifulSoup with formatter='minimal' to preserve HTML formatting
+    and avoid unnecessary HTML entity escaping.
+    """
     soup = BeautifulSoup(html_content, "html.parser")
 
     # Format the JSON with proper indentation
@@ -474,9 +478,8 @@ def update_or_insert_ld_json(html_content: str, ld_json: dict[str, Any]) -> str:
             else:
                 head.append(new_script)
 
-    # Return the modified HTML as a string
-    # Use the original formatter to preserve formatting as much as possible
-    return str(soup)
+    # Use formatter="minimal" to avoid escaping characters like > to &gt;
+    return soup.decode(formatter="minimal")
 
 
 def format_html_output(html: str) -> str:
