@@ -4,13 +4,17 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - ".github/**"
-      - "scripts/**"
-      - ".gitignore"
-      - "README.md"
+
+  schedule:
+    # Run daily at 6 AM UTC to check for Neocities changes
+    - cron: "0 6 * * *"
 
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: "Force deployment even if there are remote changes"
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-to-neocities
@@ -21,8 +25,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  deploy:
+  # Job 1: Check for remote changes and create PR if needed
+  sync:
     runs-on: ubuntu-latest
+    outputs:
+      has_remote_changes: ${{ steps.check_neocities.outputs.has_remote_changes }}
 
     steps:
       - name: Checkout repository
@@ -83,26 +90,43 @@ jobs:
             automated
             neocities-sync
 
-      - name: Skip deployment due to remote changes
-        if: steps.check_neocities.outputs.has_remote_changes == 'true'
-        run: |
-          echo "::warning::Deployment skipped - Neocities has changes not in this repo. A PR has been created to sync them."
-          exit 0
+  # Job 2: Deploy to Neocities (only on push to main or manual trigger)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: sync
+    # Deploy if:
+    # - This is a push to main AND no remote changes detected
+    # - OR this is a manual trigger with force_deploy enabled
+    # - Skip deployment for scheduled runs (those are just for syncing)
+    if: |
+      (github.event_name == 'push' && needs.sync.outputs.has_remote_changes == 'false') ||
+      (github.event_name == 'workflow_dispatch' && inputs.force_deploy == true)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Update sitemap
-        if: steps.check_neocities.outputs.has_remote_changes == 'false'
         run: |
           chmod +x scripts/update_sitemap.py
           ./scripts/update_sitemap.py --all-today
 
       - name: Generate LD-JSON
-        if: steps.check_neocities.outputs.has_remote_changes == 'false'
         run: |
           chmod +x scripts/generate_ld_json.py
           ./scripts/generate_ld_json.py
 
       - name: Build dist directory
-        if: steps.check_neocities.outputs.has_remote_changes == 'false'
         run: |
           mkdir -p dist
           # Copy only the files that should be deployed to Neocities
@@ -116,9 +140,16 @@ jobs:
           find dist -type f | sort
 
       - name: Deploy to Neocities
-        if: steps.check_neocities.outputs.has_remote_changes == 'false'
         uses: bcomnes/deploy-to-neocities@v2
         with:
           api_token: ${{ secrets.NEOCITIES_API_TOKEN }}
           cleanup: false
           dist_dir: dist
+
+      - name: Deployment summary
+        run: |
+          echo "✅ Successfully deployed to Neocities!"
+          echo "Trigger: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ "${{ inputs.force_deploy }}" == "true" ]; then
+            echo "⚠️ This was a forced deployment"
+          fi
