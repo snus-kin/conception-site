@@ -360,19 +360,27 @@ a:focus-visible {
    ============================================= */
 
 .testimonial {
-    margin-bottom: 1.5rem;
+    margin: 0 0 1.5rem 0;
 }
 
 .testimonial-quote {
+    margin: 0 0 0.25rem 0;
+}
+
+.testimonial-quote p {
     font-size: var(--fluid-base);
     font-style: italic;
     color: var(--color-secondary);
-    margin-bottom: 0.25rem;
+    margin: 0;
 }
 
 .testimonial-attribution {
     font-size: var(--fluid-sm);
     color: var(--color-primary);
+}
+
+.testimonial-attribution cite {
+    font-style: normal;
 }
 
 /* =============================================
