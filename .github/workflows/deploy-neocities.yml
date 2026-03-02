@@ -114,7 +114,6 @@ jobs:
           # List files that will be deployed
           echo "Files to deploy:"
           find dist -type f | sort
-
       - name: Deploy to Neocities
         if: steps.check_neocities.outputs.has_remote_changes == 'false'
         uses: bcomnes/deploy-to-neocities@v2
