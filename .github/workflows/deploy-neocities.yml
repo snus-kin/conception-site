@@ -37,6 +37,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # On push events, checkout the pre-merge state to compare against
+      # This detects if Neocities has changes relative to what was previously deployed
+      - name: Checkout pre-merge state for comparison
+        if: github.event_name == 'push'
+        run: git checkout ${{ github.event.before }}
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -60,6 +66,11 @@ jobs:
           else
             echo "has_remote_changes=false" >> $GITHUB_OUTPUT
           fi
+
+      # Return to the current commit before syncing changes
+      - name: Return to current commit
+        if: github.event_name == 'push' && steps.check_neocities.outputs.has_remote_changes == 'true'
+        run: git checkout ${{ github.sha }}
 
       - name: Sync changes from Neocities
         if: steps.check_neocities.outputs.has_remote_changes == 'true'
