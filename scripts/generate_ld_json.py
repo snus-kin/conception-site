@@ -440,9 +440,11 @@ def find_existing_ld_json(soup: BeautifulSoup) -> list:
 
 
 def update_or_insert_ld_json(html_content: str, ld_json: dict[str, Any]) -> str:
-    """Update existing LD-JSON or insert a new one in the HTML."""
-    soup = BeautifulSoup(html_content, "html.parser")
+    """Update existing LD-JSON or insert a new one in the HTML.
 
+    Uses string replacement to preserve original HTML formatting exactly,
+    only modifying the LD-JSON script block content.
+    """
     # Format the JSON with proper indentation
     json_str = json.dumps(ld_json, indent=4, ensure_ascii=False)
     # Indent each line for proper HTML formatting
@@ -450,33 +452,75 @@ def update_or_insert_ld_json(html_content: str, ld_json: dict[str, Any]) -> str:
         "            " + line if line.strip() else line for line in json_str.split("\n")
     )
 
+    new_script_content = "\n" + indented_json + "\n        "
+
+    # Use BeautifulSoup only to find the existing LD-JSON script position
+    soup = BeautifulSoup(html_content, "html.parser")
     existing_scripts = find_existing_ld_json(soup)
 
     if existing_scripts:
-        # Update the first existing LD-JSON script
+        # Find the script tag in the original HTML and replace only its content
         script = existing_scripts[0]
-        script.string = "\n" + indented_json + "\n        "
+        # Get the source position if available, otherwise find by searching
+        script_start_tag = '<script type="application/ld+json">'
+        alt_script_start_tag = "<script type='application/ld+json'>"
+
+        start_idx = html_content.find(script_start_tag)
+        if start_idx == -1:
+            start_idx = html_content.find(alt_script_start_tag)
+            if start_idx != -1:
+                script_start_tag = alt_script_start_tag
+
+        if start_idx != -1:
+            # Find the end of the opening tag
+            tag_end_idx = start_idx + len(script_start_tag)
+            # Find the closing </script> tag
+            close_tag = "</script>"
+            close_idx = html_content.find(close_tag, tag_end_idx)
+
+            if close_idx != -1:
+                # Replace only the content between the tags
+                return (
+                    html_content[:tag_end_idx]
+                    + new_script_content
+                    + html_content[close_idx:]
+                )
+
+        # Fallback: return unchanged if we couldn't find the script properly
+        return html_content
     else:
         # Insert new LD-JSON script before </head>
-        head = soup.find("head")
-        if head:
-            new_script = soup.new_tag("script", type="application/ld+json")
-            new_script.string = "\n" + indented_json + "\n        "
+        new_script_tag = (
+            f'<script type="application/ld+json">{new_script_content}</script>'
+        )
 
-            # Try to insert before the closing </head> but after other meta/link tags
-            # Find the last link or meta tag to insert after
-            last_meta_or_link = None
-            for tag in head.find_all(["meta", "link"]):
-                last_meta_or_link = tag
-
-            if last_meta_or_link:
-                last_meta_or_link.insert_after(new_script)
+        # Find </head> tag (case-insensitive search)
+        head_close_lower = html_content.lower().find("</head>")
+        if head_close_lower != -1:
+            # Find the indentation of the </head> tag by looking at preceding whitespace
+            line_start = html_content.rfind("\n", 0, head_close_lower)
+            if line_start != -1:
+                indent = html_content[line_start + 1 : head_close_lower]
+                if indent.strip() == "":
+                    # It's all whitespace, use it as the base indent
+                    script_indent = indent + "    "  # Add one level of indentation
+                else:
+                    script_indent = "        "
             else:
-                head.append(new_script)
+                script_indent = "        "
 
-    # Return the modified HTML as a string
-    # Use the original formatter to preserve formatting as much as possible
-    return str(soup)
+            # Insert the script tag before </head>
+            insertion_point = head_close_lower
+            return (
+                html_content[:insertion_point]
+                + script_indent
+                + new_script_tag
+                + "\n"
+                + html_content[insertion_point:]
+            )
+
+        # Fallback: return unchanged if no </head> found
+        return html_content
 
 
 def format_html_output(html: str) -> str:

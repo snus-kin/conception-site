@@ -1,0 +1,110 @@
+name: Deploy to Neocities
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".github/**"
+      - "scripts/**"
+      - ".gitignore"
+      - "README.md"
+
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-neocities
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Check for changes on Neocities
+        id: check_neocities
+        env:
+          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
+        run: |
+          chmod +x scripts/sync_from_neocities.py
+          OUTPUT=$(./scripts/sync_from_neocities.py --dry-run 2>&1)
+          echo "$OUTPUT"
+
+          # Check if there are files that would be updated or added from Neocities
+          if echo "$OUTPUT" | grep -q "Would update:\|Would add:"; then
+            echo "has_remote_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_remote_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sync changes from Neocities
+        if: steps.check_neocities.outputs.has_remote_changes == 'true'
+        env:
+          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
+        run: |
+          ./scripts/sync_from_neocities.py
+
+      - name: Create PR for Neocities changes
+        if: steps.check_neocities.outputs.has_remote_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync changes from Neocities"
+          title: "chore: Sync changes from Neocities"
+          body: |
+            This PR was automatically generated because changes were detected on Neocities that are not in this repository.
+
+            Someone may have edited files directly on Neocities. Please review these changes before merging.
+
+            **⚠️ Deployment was skipped** until these changes are reviewed and merged.
+
+            ---
+            *This PR was created automatically by the Deploy to Neocities workflow.*
+          branch: sync-from-neocities
+          delete-branch: true
+          labels: |
+            automated
+            neocities-sync
+
+      - name: Skip deployment due to remote changes
+        if: steps.check_neocities.outputs.has_remote_changes == 'true'
+        run: |
+          echo "::warning::Deployment skipped - Neocities has changes not in this repo. A PR has been created to sync them."
+          exit 0
+
+      - name: Update sitemap
+        if: steps.check_neocities.outputs.has_remote_changes == 'false'
+        run: |
+          chmod +x scripts/update_sitemap.py
+          ./scripts/update_sitemap.py --all-today
+
+      - name: Generate LD-JSON
+        if: steps.check_neocities.outputs.has_remote_changes == 'false'
+        run: |
+          chmod +x scripts/generate_ld_json.py
+          ./scripts/generate_ld_json.py
+
+      - name: Deploy to Neocities
+        if: steps.check_neocities.outputs.has_remote_changes == 'false'
+        uses: bcomnes/deploy-to-neocities@v2
+        with:
+          api_token: ${{ secrets.NEOCITIES_API_TOKEN }}
+          cleanup: false
+          dist_dir: .
