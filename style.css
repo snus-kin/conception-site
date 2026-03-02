@@ -2,6 +2,16 @@
    CONCEPTION - Main Stylesheet
    ============================================= */
 
+/* Font Face Declarations */
+@font-face {
+    font-family: "League Mono";
+    src: url("font/leaguemono-vf.woff2") format("woff2-variations");
+    font-weight: 100 900;
+    font-stretch: 50% 200%;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-primary: #000000;
     --color-background: #ffffff;
@@ -38,7 +48,7 @@
 }
 
 body {
-    font-family: "Lucida Console", "Courier New", monospace;
+    font-family: "League Mono", "Lucida Console", "Courier New", monospace;
     padding: 1rem;
     line-height: 1.6;
     background-color: var(--color-background);
@@ -118,6 +128,12 @@ body {
     font-weight: bold;
     margin: 0 !important;
     color: var(--color-primary);
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+    .site-title {
+        font-size: clamp(1.5rem, 4.5vw, 2.5rem);
+    }
 }
 
 /* Level 2: Page titles */
