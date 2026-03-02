@@ -5,6 +5,7 @@
 # ///
 """
 Update sitemap.xml with current lastmod dates based on file modification times.
+Creates the sitemap from scratch if it doesn't exist by discovering all HTML files.
 
 Usage:
     ./scripts/update_sitemap.py              # Run from project root
@@ -22,6 +23,12 @@ from pathlib import Path
 # Sitemap XML namespace
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 ET.register_namespace("", SITEMAP_NS)
+
+# Base URL for the site
+BASE_URL = "https://conceivedconception.neocities.org"
+
+# Files to exclude from sitemap
+EXCLUDED_FILES = {"not_found.html"}
 
 
 def get_file_mod_date(file_path: Path) -> str:
@@ -48,12 +55,70 @@ def url_to_filename(url: str) -> str | None:
     return None
 
 
-def update_sitemap(sitemap_path: Path, all_today: bool = False) -> None:
-    """Update the sitemap.xml file with current lastmod dates."""
-    if not sitemap_path.exists():
-        print(f"Error: Sitemap not found at {sitemap_path}", file=sys.stderr)
+def discover_html_files(base_dir: Path) -> list[Path]:
+    """Discover all HTML files in the base directory (non-recursive for top-level only)."""
+    html_files = []
+    for file_path in base_dir.glob("*.html"):
+        if file_path.name not in EXCLUDED_FILES:
+            html_files.append(file_path)
+    return sorted(html_files)
+
+
+def create_sitemap(sitemap_path: Path, all_today: bool = False) -> None:
+    """Create a new sitemap.xml file by discovering HTML files."""
+    base_dir = sitemap_path.parent
+    today = get_today()
+
+    html_files = discover_html_files(base_dir)
+
+    if not html_files:
+        print(f"Error: No HTML files found in {base_dir}", file=sys.stderr)
         sys.exit(1)
 
+    print(f"Discovered {len(html_files)} HTML file(s)")
+
+    # Create the root element
+    root = ET.Element(f"{{{SITEMAP_NS}}}urlset")
+
+    for file_path in html_files:
+        # Build the URL
+        if file_path.name == "index.html":
+            url = f"{BASE_URL}/"
+        else:
+            url = f"{BASE_URL}/{file_path.name}"
+
+        # Determine the date
+        if all_today:
+            mod_date = today
+        else:
+            mod_date = get_file_mod_date(file_path)
+
+        # Create URL element
+        url_elem = ET.SubElement(root, f"{{{SITEMAP_NS}}}url")
+        loc_elem = ET.SubElement(url_elem, f"{{{SITEMAP_NS}}}loc")
+        loc_elem.text = url
+        lastmod_elem = ET.SubElement(url_elem, f"{{{SITEMAP_NS}}}lastmod")
+        lastmod_elem.text = mod_date
+
+        print(f"  {url}: {mod_date}")
+
+    # Create the tree and write it
+    tree = ET.ElementTree(root)
+    ET.indent(tree, space="  ")
+    tree.write(
+        sitemap_path,
+        encoding="UTF-8",
+        xml_declaration=True,
+    )
+    # Add newline at end of file
+    with open(sitemap_path, "a") as f:
+        f.write("\n")
+
+    print(f"\nCreated sitemap with {len(html_files)} URL(s) at {sitemap_path}")
+
+
+def update_sitemap(sitemap_path: Path, all_today: bool = False) -> None:
+    """Update the sitemap.xml file with current lastmod dates."""
     tree = ET.parse(sitemap_path)
     root = tree.getroot()
     base_dir = sitemap_path.parent
@@ -143,13 +208,18 @@ def main() -> None:
         if alt_path.exists():
             sitemap_path = alt_path
 
-    print(f"Updating sitemap: {sitemap_path.resolve()}")
+    print(f"Sitemap path: {sitemap_path.resolve()}")
     print(
         f"Mode: {'all dates to today' if args.all_today else 'file modification times'}"
     )
     print()
 
-    update_sitemap(sitemap_path, all_today=args.all_today)
+    if sitemap_path.exists():
+        print("Updating existing sitemap...")
+        update_sitemap(sitemap_path, all_today=args.all_today)
+    else:
+        print("Sitemap not found, creating new one...")
+        create_sitemap(sitemap_path, all_today=args.all_today)
 
 
 if __name__ == "__main__":
