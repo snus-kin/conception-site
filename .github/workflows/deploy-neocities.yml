@@ -50,6 +50,7 @@ jobs:
           # Copy only the files that should be deployed to Neocities
           cp -r *.html dist/ 2>/dev/null || true
           cp -r *.css dist/ 2>/dev/null || true
+          cp -r *.js dist/ 2>/dev/null || true
           cp -r *.xml dist/ 2>/dev/null || true
           cp -r *.txt dist/ 2>/dev/null || true
           cp -r Images dist/ 2>/dev/null || true

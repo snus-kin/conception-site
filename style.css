@@ -38,6 +38,9 @@
     --fluid-xl: clamp(1.5rem, 4vw, var(--font-size-xl));
     --fluid-2xl: clamp(2rem, 5vw, var(--font-size-2xl));
     --fluid-3xl: clamp(2.5rem, 7vw, var(--font-size-3xl));
+
+    /* Footer height for positioning calculations */
+    --footer-height: 2.6rem;
 }
 
 /* Reset and base */
@@ -568,17 +571,24 @@ a:focus-visible {
 
 .footer {
     display: block;
-    position: sticky;
+    position: fixed;
+    /* Use --vh custom property set by JS for stable viewport height on mobile */
+    /* Falls back to bottom: 0 if --vh is not set */
     bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
     z-index: 1000;
-    width: calc(100% + 2rem);
-    margin-left: -1rem;
-    margin-right: -1rem;
-    margin-top: auto;
-    flex-shrink: 0;
+    width: 100%;
     background-color: var(--color-primary);
     text-decoration: none;
     padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* When --vh is set by JavaScript, use top positioning for stable footer on Firefox mobile */
+:root[style*="--vh"] .footer {
+    top: calc(var(--vh) * 100 - var(--footer-height));
+    bottom: auto;
 }
 
 .footer p {
@@ -667,12 +677,6 @@ img {
 
     .page-container {
         padding: 0.5rem;
-    }
-
-    .footer {
-        width: calc(100% + 1rem);
-        margin-left: -0.5rem;
-        margin-right: -0.5rem;
     }
 
     .two-column-layout {
