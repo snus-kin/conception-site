@@ -559,14 +559,13 @@ a:focus-visible {
     display: block;
     position: fixed;
     left: 0;
+    right: 0;
     bottom: 0;
-    width: 100%;
     background-color: var(--color-primary);
     text-decoration: none;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .footer p {
