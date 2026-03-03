@@ -88,7 +88,6 @@ body {
     max-width: 900px;
     margin: 0 auto;
     padding: 1rem;
-    padding-bottom: 4rem;
 }
 
 /* =============================================
@@ -666,7 +665,6 @@ img {
 
     .page-container {
         padding: 0.5rem;
-        padding-bottom: 4rem;
     }
 
     .two-column-layout {
@@ -720,7 +718,6 @@ img {
 @media (min-width: 601px) {
     .page-container {
         padding: 1.5rem;
-        padding-bottom: 4rem;
     }
 }
 
@@ -733,7 +730,6 @@ img {
 @media (min-width: 900px) {
     .page-container {
         padding: 2rem;
-        padding-bottom: 4rem;
     }
 
     .two-column-layout {
