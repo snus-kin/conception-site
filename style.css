@@ -54,6 +54,10 @@ body {
     background-color: var(--color-background);
     color: var(--color-primary);
     font-size: var(--font-size-base);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* =============================================
@@ -617,6 +621,7 @@ a:focus-visible {
 
 .not-found-container {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
