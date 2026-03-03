@@ -1,0 +1,105 @@
+name: Check Neocities Sync
+
+on:
+  # Run on PRs to check if there are unsynced changes
+  pull_request:
+    branches:
+      - master
+
+  # Periodic check for changes on Neocities
+  schedule:
+    - cron: "0 6 * * *"
+
+  workflow_dispatch:
+
+concurrency:
+  group: check-neocities-sync-${{ github.event_name }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # For PRs, checkout the PR's head commit to check if it already includes neocities changes
+          # For scheduled/manual runs, checkout master
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'master' }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Check for changes on Neocities
+        id: check_neocities
+        env:
+          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
+        run: |
+          chmod +x scripts/sync_from_neocities.py
+          OUTPUT=$(./scripts/sync_from_neocities.py --dry-run 2>&1)
+          echo "$OUTPUT"
+
+          # Check if there are files that would be updated or added from Neocities
+          if echo "$OUTPUT" | grep -q "Would update:\|Would add:"; then
+            echo "has_remote_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_remote_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      # For scheduled runs and manual triggers: create/update the sync PR
+      - name: Checkout master for PR creation
+        if: github.event_name != 'pull_request' && steps.check_neocities.outputs.has_remote_changes == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Sync changes from Neocities
+        if: github.event_name != 'pull_request' && steps.check_neocities.outputs.has_remote_changes == 'true'
+        env:
+          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
+        run: |
+          ./scripts/sync_from_neocities.py
+
+      - name: Create PR for Neocities changes
+        if: github.event_name != 'pull_request' && steps.check_neocities.outputs.has_remote_changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync changes from Neocities"
+          title: "chore: Sync changes from Neocities"
+          body: |
+            This PR was automatically generated because changes were detected on Neocities that are not in this repository.
+
+            Someone may have edited files directly on Neocities. Please review these changes before merging.
+
+            ---
+            *This PR was created automatically by the Check Neocities Sync workflow.*
+          branch: sync-from-neocities
+          delete-branch: true
+          labels: |
+            automated
+            neocities-sync
+
+      # For PR checks: fail if the PR doesn't already include the Neocities changes
+      # Since we checked against the PR's head commit, if has_remote_changes is true,
+      # it means the PR does NOT include all the Neocities changes yet
+      - name: Fail PR if Neocities has unsynced changes
+        if: |
+          github.event_name == 'pull_request' &&
+          steps.check_neocities.outputs.has_remote_changes == 'true'
+        run: |
+          echo "::error::There are changes on Neocities that are not included in this PR."
+          echo "Please merge the latest 'sync-from-neocities' PR or rebase on master after it's merged."
+          exit 1
