@@ -38,6 +38,10 @@
     --fluid-xl: clamp(1.5rem, 4vw, var(--font-size-xl));
     --fluid-2xl: clamp(2rem, 5vw, var(--font-size-2xl));
     --fluid-3xl: clamp(2.5rem, 7vw, var(--font-size-3xl));
+
+    /* Footer height for positioning calculations */
+    /* Calculated as: line-height (1.6 * ~1rem) + padding (1rem) ≈ 2.6rem */
+    --footer-height: 2.6rem;
 }
 
 /* Reset and base */
@@ -568,18 +572,30 @@ a:focus-visible {
     z-index: 1000;
     left: 0;
     width: 100%;
+    /* Use small viewport height to prevent Firefox mobile URL bar hide/show causing footer jump */
+    /* Falls back to bottom: 0 for browsers that don't support svh */
     bottom: 0;
+    top: auto;
     background-color: var(--color-primary);
     text-decoration: none;
     padding-bottom: env(safe-area-inset-bottom, 0);
     /* Prevent repaints on scroll */
     will-change: transform;
     contain: layout style paint;
+    /* Force GPU compositing layer for smoother fixed positioning */
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
-@supports (bottom: env(safe-area-inset-bottom)) {
+/* Fix for Firefox mobile: position footer relative to small viewport height */
+@supports (height: 1svh) {
     .footer {
-        bottom: 0;
+        /* Use top positioning with svh which doesn't change when browser UI hides */
+        top: calc(
+            100svh - var(--footer-height) - env(safe-area-inset-bottom, 0)
+        );
+        bottom: auto;
     }
 }
 
