@@ -47,15 +47,19 @@
     padding: 0;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     font-family: "League Mono", "Lucida Console", "Courier New", monospace;
     padding: 1rem;
+    padding-bottom: 0;
     line-height: 1.6;
     background-color: var(--color-background);
     color: var(--color-primary);
     font-size: var(--font-size-base);
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -84,7 +88,6 @@ body {
     max-width: 900px;
     margin: 0 auto;
     padding: 1rem;
-    padding-bottom: 4rem;
 }
 
 /* =============================================
@@ -562,14 +565,22 @@ a:focus-visible {
 .footer {
     display: block;
     position: fixed;
+    z-index: 1000;
     left: 0;
-    right: 0;
+    width: 100%;
     bottom: 0;
     background-color: var(--color-primary);
     text-decoration: none;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
     padding-bottom: env(safe-area-inset-bottom, 0);
+    /* Prevent repaints on scroll */
+    will-change: transform;
+    contain: layout style paint;
+}
+
+@supports (bottom: env(safe-area-inset-bottom)) {
+    .footer {
+        bottom: 0;
+    }
 }
 
 .footer p {
@@ -620,8 +631,7 @@ a:focus-visible {
    ============================================= */
 
 .not-found-container {
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -650,11 +660,11 @@ img {
 @media (max-width: 600px) {
     body {
         padding: 0.5rem;
+        padding-bottom: 0;
     }
 
     .page-container {
         padding: 0.5rem;
-        padding-bottom: 4rem;
     }
 
     .two-column-layout {
@@ -708,7 +718,6 @@ img {
 @media (min-width: 601px) {
     .page-container {
         padding: 1.5rem;
-        padding-bottom: 4rem;
     }
 }
 
@@ -721,7 +730,6 @@ img {
 @media (min-width: 900px) {
     .page-container {
         padding: 2rem;
-        padding-bottom: 4rem;
     }
 
     .two-column-layout {
