@@ -5,14 +5,10 @@ on:
     branches:
       - master
 
-  schedule:
-    # Run daily at 6 AM UTC to check for Neocities changes
-    - cron: "0 6 * * *"
-
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: "Force deployment even if there are remote changes"
+        description: "Force deployment even if sync PR is open"
         type: boolean
         default: false
 
@@ -20,98 +16,9 @@ concurrency:
   group: deploy-to-neocities
   cancel-in-progress: false
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
-  # Job 1: Check for remote changes and create PR if needed
-  sync:
-    runs-on: ubuntu-latest
-    outputs:
-      has_remote_changes: ${{ steps.check_neocities.outputs.has_remote_changes }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # On push events, checkout the pre-merge state to compare against
-      # This detects if Neocities has changes relative to what was previously deployed
-      - name: Checkout pre-merge state for comparison
-        if: github.event_name == 'push'
-        run: git checkout ${{ github.event.before }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Check for changes on Neocities
-        id: check_neocities
-        env:
-          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
-        run: |
-          chmod +x scripts/sync_from_neocities.py
-          OUTPUT=$(./scripts/sync_from_neocities.py --dry-run 2>&1)
-          echo "$OUTPUT"
-
-          # Check if there are files that would be updated or added from Neocities
-          if echo "$OUTPUT" | grep -q "Would update:\|Would add:"; then
-            echo "has_remote_changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_remote_changes=false" >> $GITHUB_OUTPUT
-          fi
-
-      # Return to the current commit before syncing changes
-      - name: Return to current commit
-        if: github.event_name == 'push' && steps.check_neocities.outputs.has_remote_changes == 'true'
-        run: git checkout ${{ github.sha }}
-
-      - name: Sync changes from Neocities
-        if: steps.check_neocities.outputs.has_remote_changes == 'true'
-        env:
-          NEOCITIES_API_TOKEN: ${{ secrets.NEOCITIES_API_TOKEN }}
-        run: |
-          ./scripts/sync_from_neocities.py
-
-      - name: Create PR for Neocities changes
-        if: steps.check_neocities.outputs.has_remote_changes == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: sync changes from Neocities"
-          title: "chore: Sync changes from Neocities"
-          body: |
-            This PR was automatically generated because changes were detected on Neocities that are not in this repository.
-
-            Someone may have edited files directly on Neocities. Please review these changes before merging.
-
-            **⚠️ Deployment was skipped** until these changes are reviewed and merged.
-
-            ---
-            *This PR was created automatically by the Deploy to Neocities workflow.*
-          branch: sync-from-neocities
-          delete-branch: true
-          labels: |
-            automated
-            neocities-sync
-
-  # Job 2: Deploy to Neocities (only on push to main or manual trigger)
   deploy:
     runs-on: ubuntu-latest
-    needs: sync
-    # Deploy if:
-    # - This is a push to main AND no remote changes detected
-    # - OR this is a manual trigger with force_deploy enabled
-    # - Skip deployment for scheduled runs (those are just for syncing)
-    if: |
-      (github.event_name == 'push' && needs.sync.outputs.has_remote_changes == 'false') ||
-      (github.event_name == 'workflow_dispatch' && inputs.force_deploy == true)
 
     steps:
       - name: Checkout repository
