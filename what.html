@@ -54,6 +54,7 @@
             href="https://conceivedconception.neocities.org/Images/faviconcept.png"
         />
         <link href="style.css" rel="stylesheet" type="text/css" media="all" />
+        <script src="scripts/colorize.js"></script>
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -72,123 +73,183 @@
         </script>
     </head>
     <body>
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <a href="index.html" class="mobile-title">CONCEPTION</a>
+        </div>
         <main id="main-content">
             <div class="page-container">
-                <h1 class="page-title">What</h1>
+                <!-- Main Content Area -->
+                <div class="main-content-area">
+                    <div class="secondary-content">
+                        <h1 class="page-title">What</h1>
 
-                <div class="intro">
-                    <p>
-                        Conception is an experiment-all open mic, aiming to
-                        promote creative thinking and the furthering of ideas.
-                        All forms of performance are encouraged and supported,
-                        whether that be static, kinetic, loud or quiet.
-                    </p>
+                        <div class="intro">
+                            <p>
+                                Conception is an experiment-all open mic, aiming
+                                to promote creative thinking and the furthering
+                                of ideas. All forms of performance are
+                                encouraged and supported, whether that be
+                                static, kinetic, loud or quiet.
+                            </p>
 
-                    <p>
-                        Music, Noise, Dance, Theatre, Opera, Object interaction,
-                        Stand-up comedy, Power-point presentation, Artwork
-                        presentation, Workshops, Community Choir... Anything is
-                        welcome, as long as it has a fresh idea! If you've got
-                        something you've been pondering that you need to test
-                        out, Conception events are a great place to see if
-                        things work and to get feedback on your concepts. Check
-                        the <a href="when.html">upcoming events</a> and sign up
-                        via the
-                        <a
-                            href="https://docs.google.com/forms/d/e/1FAIpQLSc09P1ybchoxmQeRvJ_42kUATPzMQ2q1kXo-eElfbiFxtSAxg/viewform?usp=dialog"
-                            target="_blank"
-                            rel="noopener"
-                            >signup form</a
-                        >, we look forward to meeting, seeing and hearing you!
-                    </p>
+                            <p>
+                                Music, Noise, Dance, Theatre, Opera, Object
+                                interaction, Stand-up comedy, Power-point
+                                presentation, Artwork presentation, Workshops,
+                                Community Choir... Anything is welcome, as long
+                                as it has a fresh idea! If you've got something
+                                you've been pondering that you need to test out,
+                                Conception events are a great place to see if
+                                things work and to get feedback on your
+                                concepts. Check the
+                                <a href="when.html">upcoming events</a> and sign
+                                up via the
+                                <a
+                                    href="https://docs.google.com/forms/d/e/1FAIpQLSc09P1ybchoxmQeRvJ_42kUATPzMQ2q1kXo-eElfbiFxtSAxg/viewform?usp=dialog"
+                                    target="_blank"
+                                    rel="noopener"
+                                    >signup form</a
+                                >, we look forward to meeting, seeing and
+                                hearing you!
+                            </p>
+                        </div>
+
+                        <h3 id="concepts-heading">
+                            concepts successfully conceived:
+                        </h3>
+
+                        <ul
+                            class="concepts-list"
+                            aria-labelledby="concepts-heading"
+                        >
+                            <li>> cd mangling seizure dance</li>
+                            <li>> anxious rodent public speech</li>
+                            <li>> chill mouse serenading session</li>
+                            <li>> ghost manifestation</li>
+                            <li>> public displays of affection</li>
+                            <li>> autoharp loop dub</li>
+                            <li>> an idea involving a trumpet</li>
+                            <li>> easel does it, an art class</li>
+                            <li>> waving at a sample pad</li>
+                            <li>
+                                > gromit screaming for help on the big screen
+                            </li>
+                            <li>> resonating jelly</li>
+                            <li>> deconstructed pie reconstructed</li>
+                            <li>> telephone call crypt adventure</li>
+                            <li>> tony blair & gordon brown</li>
+                            <li>
+                                > poet interested in collab with sound if any
+                                ideas
+                            </li>
+                            <li>> bardic tavern shanty</li>
+                            <li>> scrap metal sales pitch</li>
+                            <li>> vibrational trumpet looping</li>
+                            <li>> floppy disk sample shredding</li>
+                            <li>> blue trance emptiness</li>
+                            <li>
+                                > detailed toilet humor speech backed by
+                                classical violin
+                            </li>
+                            <li>> vocoder elf hyperpop</li>
+                            <li>
+                                > backward vocoder trumpet sample dredge
+                                super-duo
+                            </li>
+                            <li>> 2000's era youtube hyper-dubstep remix</li>
+                            <li>> rizla paper pitch blowing</li>
+                            <li>
+                                > professor Elijah Rex TEDTalk "Communicating
+                                with Dinosaurs"
+                            </li>
+                            <li>> melancholic drone mumble</li>
+                            <li>> solo choir voice dexterity</li>
+                            <li>> two blokes sitting on the toilet</li>
+                            <li>> domino set civil engineering</li>
+                            <li>
+                                > being on the left transitioning to being on
+                                the right
+                            </li>
+                            <li>
+                                > haunting exploration of sequential imagery
+                            </li>
+                            <li>> bird whistle choking</li>
+                            <li>> CRANKPAD workshop</li>
+                            <li>> live coding live remix</li>
+                            <li>
+                                > zero-mechanical-input much-physical-input
+                                noise
+                            </li>
+                            <li>
+                                > conception powerpoint presentation community
+                                feedback session
+                            </li>
+                            <li>
+                                > traditional vocal technique lecture and live
+                                demonstration
+                            </li>
+                            <li>> backwards sample pad acrobatics</li>
+                            <li>
+                                > group vacation to Hawaii and Rio de Janeiro
+                            </li>
+                            <li>> conception christmas carol</li>
+                            <li>> free music lesson, bass guitar</li>
+                            <li>> vacant haunting band debut</li>
+                            <li>> marsupial crystal bauble readings</li>
+                            <li>> every guitar pedal ever with a pig piano</li>
+                            <li>> introspective bedroom synth pop</li>
+                            <li>> rock-star guitar jangle percussion mash</li>
+                            <li>
+                                > exploration of possibilities with the worst
+                                DAW
+                            </li>
+                            <li>> dynamic attention span retention</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                            <li>> (concept loading)...</li>
+                        </ul>
+                    </div>
                 </div>
 
-                <h3 id="concepts-heading">concepts successfully conceived:</h3>
+                <!-- Universal Sidebar -->
+                <div class="universal-sidebar">
+                    <a href="index.html" class="site-title">
+                        <span class="site-title-line">CON</span>
+                        <span class="site-title-line">CEP</span>
+                        <span class="site-title-line">TION</span>
+                    </a>
 
-                <ul class="concepts-list" aria-labelledby="concepts-heading">
-                    <li>> cd mangling seizure dance</li>
-                    <li>> anxious rodent public speech</li>
-                    <li>> chill mouse serenading session</li>
-                    <li>> ghost manifestation</li>
-                    <li>> public displays of affection</li>
-                    <li>> autoharp loop dub</li>
-                    <li>> an idea involving a trumpet</li>
-                    <li>> easel does it, an art class</li>
-                    <li>> waving at a sample pad</li>
-                    <li>> gromit screaming for help on the big screen</li>
-                    <li>> resonating jelly</li>
-                    <li>> deconstructed pie reconstructed</li>
-                    <li>> telephone call crypt adventure</li>
-                    <li>> tony blair & gordon brown</li>
-                    <li>> poet interested in collab with sound if any ideas</li>
-                    <li>> bardic tavern shanty</li>
-                    <li>> scrap metal sales pitch</li>
-                    <li>> vibrational trumpet looping</li>
-                    <li>> floppy disk sample shredding</li>
-                    <li>> blue trance emptiness</li>
-                    <li>
-                        > detailed toilet humor speech backed by classical
-                        violin
-                    </li>
-                    <li>> vocoder elf hyperpop</li>
-                    <li>> backward vocoder trumpet sample dredge super-duo</li>
-                    <li>> 2000's era youtube hyper-dubstep remix</li>
-                    <li>> rizla paper pitch blowing</li>
-                    <li>
-                        > professor Elijah Rex TEDTalk "Communicating with
-                        Dinosaurs"
-                    </li>
-                    <li>> melancholic drone mumble</li>
-                    <li>> solo choir voice dexterity</li>
-                    <li>> two blokes sitting on the toilet</li>
-                    <li>> domino set civil engineering</li>
-                    <li>
-                        > being on the left transitioning to being on the right
-                    </li>
-                    <li>> haunting exploration of sequential imagery</li>
-                    <li>> bird whistle choking</li>
-                    <li>> CRANKPAD workshop</li>
-                    <li>> live coding live remix</li>
-                    <li>> zero-mechanical-input much-physical-input noise</li>
-                    <li>
-                        > conception powerpoint presentation community feedback
-                        session
-                    </li>
-                    <li>
-                        > traditional vocal technique lecture and live
-                        demonstration
-                    </li>
-                    <li>> backwards sample pad acrobatics</li>
-                    <li>> group vacation to Hawaii and Rio de Janeiro</li>
-                    <li>> conception christmas carol</li>
-                    <li>> free music lesson, bass guitar</li>
-                    <li>> vacant haunting band debut</li>
-                    <li>> marsupial crystal bauble readings</li>
-                    <li>> every guitar pedal ever with a pig piano</li>
-                    <li>> introspective bedroom synth pop</li>
-                    <li>> rock-star guitar jangle percussion mash</li>
-                    <li>> exploration of possibilities with the worst DAW</li>
-                    <li>> dynamic attention span retention</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                    <li>> (concept loading)...</li>
-                </ul>
+                    <div class="event-info">
+                        <p>Experimental Open Mic</p>
+                        <p>Leeds, UK</p>
+                        <p>Free Entry</p>
+                    </div>
 
-                <p class="decorative" aria-hidden="true">♫</p>
+                    <nav class="sidebar-nav" aria-label="Main navigation">
+                        <ul class="nav-links">
+                            <li><a href="when.html">When</a></li>
+                            <li><a href="what.html">What</a></li>
+                            <li><a href="who.html">Who</a></li>
+                            <li><a href="words.html">Words</a></li>
+                            <li><a href="faq.html">FAQ</a></li>
+                            <li>
+                                <a href="testimonials.html">Testimonials</a>
+                            </li>
+                            <li><a href="gallery.html">Poster Gallery</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </main>
-
-        <a href="index.html" class="footer">
-            <p>RETURN HOME</p>
-        </a>
     </body>
 </html>
