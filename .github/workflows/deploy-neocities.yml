@@ -53,6 +53,8 @@ jobs:
           cp -r *.xml dist/ 2>/dev/null || true
           cp -r *.txt dist/ 2>/dev/null || true
           cp -r Images dist/ 2>/dev/null || true
+          cp -r font dist/ 2>/dev/null || true
+          cp -r scripts dist/ 2>/dev/null || true
           # List files that will be deployed
           echo "Files to deploy:"
           find dist -type f | sort
