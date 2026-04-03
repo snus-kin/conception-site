@@ -597,7 +597,7 @@ a:focus-visible {
 /* Hide main content on very narrow screens */
 @media (max-width: 480px) {
     .main-content-area {
-        display: none;
+        display: flex;
     }
 
     .page-container {
