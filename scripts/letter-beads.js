@@ -115,12 +115,6 @@ class LetterBeads {
     const isMobile = window.innerWidth <= 768;
     const isVeryNarrow = window.innerWidth <= 480;
 
-    // Skip all bead creation on very narrow screens
-    if (isVeryNarrow) {
-      console.log("Letter Beads: Skipping bead creation on very narrow screen");
-      return;
-    }
-
     // Calculate reasonable number of beads based on viewport size
     const viewportArea = window.innerWidth * window.innerHeight;
     const beadArea = this.beadSize * this.beadSize;
@@ -175,13 +169,64 @@ class LetterBeads {
     const isMobile = window.innerWidth <= 768;
     const isVeryNarrow = window.innerWidth <= 480;
 
-    // Skip word creation on very narrow screens
+    const words = ["CONCEPTION", "EXPERIMENTALL", "OPEN", "MIC", "NIGHT"];
+
+    // Sine-wave snake layout for very narrow screens (mobile)
+    // Letters follow a smooth S-curve path downward — spaced out and rounded
     if (isVeryNarrow) {
+      const mobileBeadSize = 45;
+      const origBeadSize = this.beadSize;
+      this.beadSize = mobileBeadSize;
+
+      const edgePad = 5;
+      const yStep = 48; // vertical step — kept above bead diameter so apex beads don't overlap
+      const beadsPerCycle = 10; // beads per full S-curve
+      const amplitude =
+        (containerRect.width - mobileBeadSize - edgePad * 2) / 2;
+      const freq = (2 * Math.PI) / beadsPerCycle;
+
+      // Flatten all words into one letter array, skipping spaces/dashes
+      const allLetters = words
+        .join("")
+        .split("")
+        .filter((c) => c !== " " && c !== "-");
+
+      allLetters.forEach((char, i) => {
+        // Near the apex cos'(t)≈0, so small phase changes → tiny X changes → bunching.
+        // Scale the jitter up near apices so beads get nudged further along the curve.
+        const nominalPhase = i * freq;
+        const apexness = Math.abs(Math.cos(nominalPhase)); // 1 at apex, 0 at midpoint
+        const jitter = (Math.random() - 0.5) * freq * (0.4 + 1.2 * apexness);
+        const phase = nominalPhase + jitter;
+
+        // (1 - cos) starts at 0 (left edge) and swings right, back, right…
+        const baseX = edgePad + amplitude * (1 - Math.cos(phase));
+        const baseY = 20 + i * yStep;
+
+        const scatterX = (Math.random() - 0.5) * 16;
+        const scatterY = (Math.random() - 0.5) * 14;
+        const finalX = Math.max(
+          edgePad,
+          Math.min(
+            containerRect.width - mobileBeadSize - edgePad,
+            baseX + scatterX,
+          ),
+        );
+        const finalY = baseY + scatterY;
+        this.createBeadAtPosition(char, container, finalX, finalY);
+      });
+
+      // Expand bead container and parent to fit all placed beads
+      const totalHeight = 20 + allLetters.length * yStep + mobileBeadSize + 40;
+      container.style.height = totalHeight + "px";
+      mainContentArea.style.height = totalHeight + "px";
+      mainContentArea.style.minHeight = totalHeight + "px";
+
+      this.beadSize = origBeadSize;
       return;
     }
 
-    // Dynamic line breaking based on container width
-    const words = ["CONCEPTION", "EXPERIMENTALL", "OPEN", "MIC", "NIGHT"];
+    // Dynamic line breaking based on container width (desktop / tablet)
     const availableWidth = containerRect.width - 40; // 20px margin on each side
     const letterSpacing = this.beadSize + 15;
 
