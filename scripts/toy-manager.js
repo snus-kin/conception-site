@@ -5,7 +5,7 @@
 class ToyManager {
   constructor() {
     this.currentToy = null;
-    this.toys = ["beads", "drawing"];
+    this.toys = ["beads", "drawing", "checkboxes"];
     this.toyInstances = {};
     this.keySequence = [];
     this.targetSequence = ["KeyT", "KeyO", "KeyY"];
@@ -72,7 +72,11 @@ class ToyManager {
     }
 
     // Clear containers
-    ["letter-beads-container", "drawing-container"].forEach((id) => {
+    [
+      "letter-beads-container",
+      "drawing-container",
+      "checkboxes-container",
+    ].forEach((id) => {
       const container = document.getElementById(id);
       if (container) container.remove();
     });
@@ -82,6 +86,8 @@ class ToyManager {
       this.toyInstances.beads = new window.LetterBeads();
     } else if (toyName === "drawing" && window.DrawingToy) {
       this.toyInstances.drawing = new window.DrawingToy();
+    } else if (toyName === "checkboxes" && window.CheckboxToy) {
+      this.toyInstances.checkboxes = new window.CheckboxToy();
     }
 
     this.currentToy = toyName;
