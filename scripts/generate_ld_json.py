@@ -130,7 +130,10 @@ def get_text_with_spacing(element) -> str:
         else:
             parts.append(str(child))
 
-    return normalize_whitespace("".join(parts))
+    text = normalize_whitespace("".join(parts))
+    # Remove spaces before punctuation (e.g., "Instagram ." -> "Instagram.")
+    text = re.sub(r" ([.,!?;:])", r"\1", text)
+    return text
 
 
 def extract_faq_items(soup: BeautifulSoup) -> list[dict[str, Any]]:
@@ -139,11 +142,11 @@ def extract_faq_items(soup: BeautifulSoup) -> list[dict[str, Any]]:
 
     # Look for FAQ items in div.faq-item elements
     for faq_div in soup.find_all("div", class_="faq-item"):
-        h2 = faq_div.find("h2")
+        h3 = faq_div.find("h3")
         p = faq_div.find("p")
 
-        if h2 and p:
-            question = normalize_whitespace(h2.get_text(strip=True))
+        if h3 and p:
+            question = normalize_whitespace(h3.get_text(strip=True))
             # Get text content, with proper spacing around links
             answer_text = get_text_with_spacing(p)
 
@@ -289,7 +292,13 @@ def extract_articles(soup: BeautifulSoup) -> list[dict[str, Any]]:
     """Extract article links from the words page."""
     articles = []
 
-    for li in soup.find_all("li"):
+    # Only look inside the content list, not nav or sidebar links
+    content_list = soup.find("ul", class_="content-list")
+    if content_list is None:
+        # Fall back to main content area if no content-list class found
+        content_list = soup.find("div", class_="main-content-area") or soup
+
+    for li in content_list.find_all("li"):
         link = li.find("a")
         if link:
             text = li.get_text(strip=True)
