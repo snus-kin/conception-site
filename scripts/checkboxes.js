@@ -3,8 +3,12 @@ class CheckboxToy {
     this.containerId = "checkboxes-container";
     this.el = null;
     this.isMouseDown = false;
+    this.isDragging = false;
     this.drawMode = true;
     this.lastIndex = -1;
+    this.startX = 0;
+    this.startY = 0;
+    this.DRAG_THRESHOLD = 5;
 
     // Exact 56x56 bitmap from Images/mystro icon.bmp
     this.LOGO_BITMAP = [
@@ -106,11 +110,10 @@ class CheckboxToy {
       z-index: 10; overflow: hidden;
       background-color: var(--color-cream);
       user-select: none;
+      display: grid;
+      justify-content: center;
+      align-content: center;
     `;
-
-    if (window.innerWidth >= 768) {
-      this.el.style.touchAction = "none";
-    }
 
     mainContentArea.appendChild(this.el);
     this.addEventListeners();
@@ -123,41 +126,37 @@ class CheckboxToy {
 
     const getIndex = (e) => {
       const target = e.target.closest("input");
-      if (!target) {
-        const rect = this.el.getBoundingClientRect();
-        const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
-        const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
-        if (x < 0 || y < 0 || x > rect.width || y > rect.height) return -1;
-        const c = Math.floor(x / this.STEP);
-        const r = Math.floor(y / this.STEP);
-        return r * this.COLS + c;
-      }
-      return parseInt(target.dataset.idx);
+      if (target) return parseInt(target.dataset.idx);
+
+      const rect = this.el.getBoundingClientRect();
+      const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+      const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+      const c = Math.floor(x / this.STEP);
+      const r = Math.floor(y / this.STEP);
+      if (c < 0 || c >= this.COLS || r < 0 || r >= this.ROWS) return -1;
+      return r * this.COLS + c;
     };
 
-    const toggle = (idx) => {
+    const setChecked = (idx, val) => {
       if (idx < 0 || idx >= this.ROWS * this.COLS) return;
       const cb = this.el.children[idx];
-      if (cb) cb.checked = this.drawMode;
+      if (cb) cb.checked = val;
     };
 
     const drawLine = (idx1, idx2) => {
-      if (idx1 < 0 || idx2 < 0) return;
       const r1 = Math.floor(idx1 / this.COLS),
         c1 = idx1 % this.COLS;
       const r2 = Math.floor(idx2 / this.COLS),
         c2 = idx2 % this.COLS;
-
       let dr = Math.abs(r2 - r1),
         dc = Math.abs(c2 - c1);
       let sr = r1 < r2 ? 1 : -1,
         sc = c1 < c2 ? 1 : -1;
       let err = dc - dr;
-
       let currR = r1,
         currC = c1;
       while (true) {
-        toggle(currR * this.COLS + currC);
+        setChecked(currR * this.COLS + currC, this.drawMode);
         if (currR === r2 && currC === c2) break;
         let e2 = 2 * err;
         if (e2 > -dr) {
@@ -171,60 +170,72 @@ class CheckboxToy {
       }
     };
 
-    const onDown = (e) => {
-      const idx = getIndex(e);
-      if (idx === -1) return;
+    this.el.addEventListener("pointerdown", (e) => {
+      if (e.target.tagName !== "INPUT") return;
 
       this.isMouseDown = true;
-      const cb = this.el.children[idx];
-      this.drawMode = cb ? !cb.checked : true;
-      toggle(idx);
-      this.lastIndex = idx;
+      this.isDragging = false;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+      this.lastIndex = getIndex(e);
+      this.drawMode = !e.target.checked;
 
-      if (e.pointerId && !isMobile()) {
+      if (!isMobile() && e.pointerId) {
         this.el.setPointerCapture(e.pointerId);
       }
-    };
+    });
 
-    const onMove = (e) => {
+    this.el.addEventListener("pointermove", (e) => {
       if (!this.isMouseDown) return;
-      if (isMobile() && e.pointerType === "touch") return;
+      if (isMobile()) return;
+
+      if (!this.isDragging) {
+        const dist = Math.hypot(
+          e.clientX - this.startX,
+          e.clientY - this.startY,
+        );
+        if (dist > this.DRAG_THRESHOLD) {
+          this.isDragging = true;
+        } else {
+          return;
+        }
+      }
 
       const idx = getIndex(e);
-      if (idx === -1 || idx === this.lastIndex) return;
-      drawLine(this.lastIndex, idx);
-      this.lastIndex = idx;
-    };
+      if (idx !== -1 && idx !== this.lastIndex) {
+        drawLine(this.lastIndex, idx);
+        this.lastIndex = idx;
+      }
+    });
+
+    this.el.addEventListener(
+      "click",
+      (e) => {
+        if (this.isDragging) e.preventDefault();
+      },
+      true,
+    );
 
     const onUp = () => {
       this.isMouseDown = false;
       this.lastIndex = -1;
     };
 
-    this.el.addEventListener("pointerdown", onDown);
-    this.el.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     this._onUp = onUp;
   }
 
   buildPoster() {
     if (!this.el) return;
-    const rect = this.el.parentElement.getBoundingClientRect();
+    const parent = this.el.parentElement;
+    const rect = parent.getBoundingClientRect();
     const w = rect.width,
       h = rect.height;
     if (w === 0 || h === 0) return;
 
     const isMobile = w < 768;
-    this.CB = 16;
-    this.STEP = this.CB;
+    this.STEP = 16;
     this.COLS = Math.floor(w / this.STEP);
-    this.ROWS = Math.floor(h / this.STEP);
-
-    this.el.style.display = "grid";
-    this.el.style.width = this.COLS * this.STEP + "px";
-    this.el.style.height = this.ROWS * this.STEP + "px";
-    this.el.style.gridTemplateColumns = `repeat(${this.COLS}, ${this.STEP}px)`;
-    this.el.style.gridTemplateRows = `repeat(${this.ROWS}, ${this.STEP}px)`;
 
     const checked = new Set();
     const mark = (r, c) => {
@@ -232,25 +243,54 @@ class CheckboxToy {
         checked.add(r * this.COLS + c);
     };
 
-    const LOGO_ROWS = this.LOGO_BITMAP.length,
-      LOGO_COLS = this.LOGO_BITMAP[0].length;
-    const MAX_LOGO_H = isMobile
-      ? Math.floor(this.ROWS * 0.4)
-      : Math.floor(this.ROWS * 0.45);
-    const LOGO_SCALE = Math.max(
-      1,
-      Math.floor(
-        Math.min((this.COLS * 0.8) / LOGO_COLS, MAX_LOGO_H / LOGO_ROWS),
-      ),
-    );
-    const logoH = LOGO_ROWS * LOGO_SCALE;
-
-    let logoOffR, logoOffC;
+    const srcBitmap = this.LOGO_BITMAP;
+    let finalBitmap = srcBitmap;
 
     if (isMobile) {
-      logoOffR = Math.floor((this.ROWS - logoH) / 2);
-      logoOffC = Math.floor((this.COLS - LOGO_COLS * LOGO_SCALE) / 2);
+      // Downsample for mobile Fit
+      finalBitmap = [];
+      const scale = 3;
+      for (let r = 0; r < srcBitmap.length; r += scale) {
+        let row = "";
+        for (let c = 0; c < srcBitmap[0].length; c += scale) {
+          let active = false;
+          for (let ir = 0; ir < scale && r + ir < srcBitmap.length; ir++) {
+            for (let ic = 0; ic < scale && c + ic < srcBitmap[0].length; ic++) {
+              if (srcBitmap[r + ir][c + ic] === "1") active = true;
+            }
+          }
+          row += active ? "1" : "0";
+        }
+        finalBitmap.push(row);
+      }
+
+      const LOGO_ROWS = finalBitmap.length,
+        LOGO_COLS = finalBitmap[0].length;
+      this.ROWS = LOGO_ROWS + 2;
+      const logoOffR = 1;
+      const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
+
+      for (let br = 0; br < LOGO_ROWS; br++) {
+        for (let bc = 0; bc < LOGO_COLS; bc++) {
+          if (finalBitmap[br][bc] === "1") mark(logoOffR + br, logoOffC + bc);
+        }
+      }
+
+      this.el.style.position = "relative";
+      this.el.style.height = this.ROWS * this.STEP + "px";
+      this.el.style.alignContent = "start";
+      parent.style.setProperty("padding", "0", "important");
     } else {
+      this.el.style.position = "absolute";
+      this.el.style.height = "100%";
+      this.el.style.alignContent = "center";
+      this.ROWS = Math.floor(h / this.STEP);
+      parent.style.removeProperty("padding");
+
+      const LOGO_ROWS = srcBitmap.length,
+        LOGO_COLS = srcBitmap[0].length;
+
+      // --- Restore Text Logic ---
       const TEXT_SCALE = Math.max(1, Math.floor(this.COLS / 100));
       const CHAR_W = 5,
         LETTER_SPC = 1,
@@ -281,36 +321,49 @@ class CheckboxToy {
         lineSpc = 1;
       const textH =
         (lines.length * charH + (lines.length - 1) * lineSpc) * TEXT_SCALE;
-
       const GAP = Math.max(1, Math.floor(this.ROWS * 0.03));
-      const totalH = logoH + GAP + textH;
-      logoOffR = Math.floor((this.ROWS - totalH) / 2);
-      const textOffR = logoOffR + logoH + GAP;
-      logoOffC = Math.floor((this.COLS - LOGO_COLS * LOGO_SCALE) / 2);
+      const totalContentH = LOGO_ROWS + GAP + textH;
 
+      const logoOffR = Math.floor((this.ROWS - totalContentH) / 2);
+      const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
+      const textOffR = logoOffR + LOGO_ROWS + GAP;
+
+      // Stamp Logo
+      for (let br = 0; br < LOGO_ROWS; br++) {
+        for (let bc = 0; bc < LOGO_COLS; bc++) {
+          if (srcBitmap[br][bc] === "1") mark(logoOffR + br, logoOffC + bc);
+        }
+      }
+
+      // Stamp Text
       let currentR = textOffR;
       for (const line of lines) {
         let lineW = 0;
         line.forEach(
-          (w, i) =>
+          (word, i) =>
             (lineW +=
-              w.length * CHAR_W +
-              (w.length - 1) * LETTER_SPC +
+              word.length * CHAR_W +
+              (word.length - 1) * LETTER_SPC +
               (i === 0 ? 0 : WORD_SPC)),
         );
         let currentC = Math.floor((this.COLS - lineW * TEXT_SCALE) / 2);
         for (const word of line) {
           for (const char of word) {
             const bitmap = this.FONT[char] || this.FONT["A"];
-            for (let r = 0; r < 7; r++)
-              for (let c = 0; c < 5; c++)
-                if (bitmap[r][c] === "1")
-                  for (let sr = 0; sr < TEXT_SCALE; sr++)
-                    for (let sc = 0; sc < TEXT_SCALE; sc++)
+            for (let r = 0; r < 7; r++) {
+              for (let c = 0; c < 5; c++) {
+                if (bitmap[r][c] === "1") {
+                  for (let sr = 0; sr < TEXT_SCALE; sr++) {
+                    for (let sc = 0; sc < TEXT_SCALE; sc++) {
                       mark(
                         currentR + r * TEXT_SCALE + sr,
                         currentC + c * TEXT_SCALE + sc,
                       );
+                    }
+                  }
+                }
+              }
+            }
             currentC += (CHAR_W + LETTER_SPC) * TEXT_SCALE;
           }
           currentC += (WORD_SPC - LETTER_SPC) * TEXT_SCALE;
@@ -319,35 +372,26 @@ class CheckboxToy {
       }
     }
 
-    for (let br = 0; br < LOGO_ROWS; br++) {
-      for (let bc = 0; bc < LOGO_COLS; bc++) {
-        if (this.LOGO_BITMAP[br][bc] === "1") {
-          for (let sr = 0; sr < LOGO_SCALE; sr++)
-            for (let sc = 0; sc < LOGO_SCALE; sc++)
-              mark(
-                logoOffR + br * LOGO_SCALE + sr,
-                logoOffC + bc * LOGO_SCALE + sc,
-              );
-        }
-      }
-    }
+    this.el.style.gridTemplateColumns = `repeat(${this.COLS}, ${this.STEP}px)`;
+    this.el.style.gridTemplateRows = `repeat(${this.ROWS}, ${this.STEP}px)`;
 
     const total = this.ROWS * this.COLS;
-    const html = new Array(total);
-    const style = `margin:0;padding:0;`;
-
+    let htmlArr = new Array(total);
     for (let i = 0; i < total; i++) {
-      const isChecked = checked.has(i);
-      html[i] =
-        `<input type="checkbox" data-idx="${i}" style="${style}" ${isChecked ? "checked" : ""}>`;
+      htmlArr[i] =
+        `<input type="checkbox" data-idx="${i}" style="margin:0;width:16px;height:16px;" ${checked.has(i) ? "checked" : ""}>`;
     }
-    this.el.innerHTML = html.join("");
+    this.el.innerHTML = htmlArr.join("");
   }
 
   destroy() {
     window.removeEventListener("resize", this.handleResize);
     if (this._onUp) window.removeEventListener("pointerup", this._onUp);
-    if (this.el) this.el.remove();
+    if (this.el) {
+      const parent = this.el.parentElement;
+      if (parent) parent.style.removeProperty("padding");
+      this.el.remove();
+    }
   }
 }
 
