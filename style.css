@@ -569,11 +569,15 @@ a:focus-visible {
     }
 
     body {
-        padding-top: 80px; /* Space for fixed header */
+        padding-top: 60px; /* Consistently space for fixed header */
     }
 
     .mobile-header {
         display: block;
+        height: 60px; /* Fixed height for header to match body padding */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .page-container {
@@ -613,18 +617,6 @@ a:focus-visible {
         order: 1;
     }
 
-    body {
-        padding-top: 60px; /* Smaller header on narrow screens */
-    }
-
-    .mobile-header {
-        padding: 0.75rem 1rem;
-    }
-
-    .mobile-title {
-        font-size: var(--fluid-xl);
-    }
-
     /* Fixed mobile header */
     .mobile-header {
         position: fixed;
@@ -632,9 +624,12 @@ a:focus-visible {
         left: 0;
         right: 0;
         background-color: var(--color-sidebar-dynamic);
-        padding: 1rem 1.5rem;
+        height: 60px;
         z-index: 1000;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .mobile-title {
@@ -659,6 +654,7 @@ a:focus-visible {
         height: auto;
         position: static;
         background-color: var(--color-sidebar-dynamic);
+        flex: 1; /* Add this to fill space */
     }
 
     .site-title {
@@ -722,18 +718,6 @@ a:focus-visible {
 }
 
 @media (max-width: 480px) {
-    body {
-        padding-top: 70px; /* Smaller header space */
-    }
-
-    .mobile-header {
-        padding: 0.75rem 1rem;
-    }
-
-    .mobile-title {
-        font-size: var(--fluid-xl);
-    }
-
     .main-content-area {
         padding: 1.5rem 1rem;
     }

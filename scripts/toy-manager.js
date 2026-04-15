@@ -5,7 +5,7 @@
 class ToyManager {
   constructor() {
     this.currentToy = null;
-    this.toys = ["beads", "drawing"];
+    this.toys = ["beads", "checkboxes"];
     this.toyInstances = {};
     this.keySequence = [];
     this.targetSequence = ["KeyT", "KeyO", "KeyY"];
@@ -22,8 +22,9 @@ class ToyManager {
   }
 
   setup() {
-    // Start with beads
-    this.switchToToy("beads");
+    // Pick a random default toy
+    const randomToy = this.toys[Math.floor(Math.random() * this.toys.length)];
+    this.switchToToy(randomToy);
 
     // Listen for key presses
     document.addEventListener("keydown", (e) => this.handleKeyPress(e));
@@ -72,7 +73,11 @@ class ToyManager {
     }
 
     // Clear containers
-    ["letter-beads-container", "drawing-container"].forEach((id) => {
+    [
+      "letter-beads-container",
+      "drawing-container",
+      "checkboxes-container",
+    ].forEach((id) => {
       const container = document.getElementById(id);
       if (container) container.remove();
     });
@@ -80,8 +85,8 @@ class ToyManager {
     // Create new toy
     if (toyName === "beads" && window.LetterBeads) {
       this.toyInstances.beads = new window.LetterBeads();
-    } else if (toyName === "drawing" && window.DrawingToy) {
-      this.toyInstances.drawing = new window.DrawingToy();
+    } else if (toyName === "checkboxes" && window.CheckboxToy) {
+      this.toyInstances.checkboxes = new window.CheckboxToy();
     }
 
     this.currentToy = toyName;
