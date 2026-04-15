@@ -89,6 +89,9 @@ class CheckboxToy {
 
     this.WORDS = ["CONCEPTION", "EXPERIMENTALL", "OPEN", "MIC", "NIGHT"];
 
+    // Pre-calculate logo bounding box for trimming
+    this.LOGO_BOUNDS = this.calculateLogoBounds();
+
     this.resizeTimer = null;
     this.handleResize = () => {
       clearTimeout(this.resizeTimer);
@@ -96,6 +99,23 @@ class CheckboxToy {
     };
 
     this.init();
+  }
+
+  calculateLogoBounds() {
+    let minR = this.LOGO_BITMAP.length, maxR = 0, minC = this.LOGO_BITMAP[0].length, maxC = 0;
+    let found = false;
+    for (let r = 0; r < this.LOGO_BITMAP.length; r++) {
+      for (let c = 0; c < this.LOGO_BITMAP[r].length; c++) {
+        if (this.LOGO_BITMAP[r][c] === "1") {
+          found = true;
+          if (r < minR) minR = r;
+          if (r > maxR) maxR = r;
+          if (c < minC) minC = c;
+          if (c > maxC) maxC = c;
+        }
+      }
+    }
+    return found ? { minR, maxR, minC, maxC, w: maxC - minC + 1, h: maxR - minR + 1 } : null;
   }
 
   init() {
@@ -178,6 +198,8 @@ class CheckboxToy {
       this.startX = e.clientX;
       this.startY = e.clientY;
       this.lastIndex = getIndex(e);
+
+      // Capture intent based on current state before native toggle happens
       this.drawMode = !e.target.checked;
 
       if (!isMobile() && e.pointerId) {
@@ -208,6 +230,7 @@ class CheckboxToy {
       }
     });
 
+    // Prevent default ONLY if we were dragging
     this.el.addEventListener(
       "click",
       (e) => {
@@ -234,8 +257,41 @@ class CheckboxToy {
     if (w === 0 || h === 0) return;
 
     const isMobile = w < 768;
-    this.STEP = 16;
-    this.COLS = Math.floor(w / this.STEP);
+    const LOGO_ROWS = this.LOGO_BITMAP.length,
+      LOGO_COLS = this.LOGO_BITMAP[0].length;
+
+    if (isMobile && this.LOGO_BOUNDS) {
+      // On mobile, trim to logo content + 2 rows above and below
+      this.COLS = this.LOGO_BOUNDS.w;
+      this.ROWS = this.LOGO_BOUNDS.h + 4; // 2 above, 2 below
+      this.STEP = Math.floor(w / this.COLS);
+
+      this.el.style.position = "relative";
+      this.el.style.height = this.ROWS * this.STEP + "px";
+      this.el.style.alignContent = "start";
+      this.el.style.display = "grid";
+      this.el.style.gap = "0"; // Ensure no gaps between checkboxes
+      parent.style.setProperty("padding", "0", "important");
+      parent.style.flex = "none";
+    } else {
+      // Desktop: use original logic (or full bitmap width)
+      this.COLS = isMobile ? 56 : Math.floor(w / 16);
+      this.STEP = Math.floor(w / this.COLS);
+      
+      if (isMobile) {
+        this.ROWS = LOGO_ROWS + 4;
+        parent.style.setProperty("padding", "0", "important");
+        parent.style.flex = "none";
+      } else {
+        this.ROWS = Math.floor(h / this.STEP);
+        parent.style.removeProperty("padding");
+        parent.style.removeProperty("flex");
+      }
+
+      this.el.style.position = isMobile ? "relative" : "absolute";
+      this.el.style.height = isMobile ? (this.ROWS * this.STEP + "px") : "100%";
+      this.el.style.alignContent = isMobile ? "start" : "center";
+    }
 
     const checked = new Set();
     const mark = (r, c) => {
@@ -243,54 +299,27 @@ class CheckboxToy {
         checked.add(r * this.COLS + c);
     };
 
-    const srcBitmap = this.LOGO_BITMAP;
-    let finalBitmap = srcBitmap;
-
-    if (isMobile) {
-      // Downsample for mobile Fit
-      finalBitmap = [];
-      const scale = 3;
-      for (let r = 0; r < srcBitmap.length; r += scale) {
-        let row = "";
-        for (let c = 0; c < srcBitmap[0].length; c += scale) {
-          let active = false;
-          for (let ir = 0; ir < scale && r + ir < srcBitmap.length; ir++) {
-            for (let ic = 0; ic < scale && c + ic < srcBitmap[0].length; ic++) {
-              if (srcBitmap[r + ir][c + ic] === "1") active = true;
-            }
-          }
-          row += active ? "1" : "0";
+    if (isMobile && this.LOGO_BOUNDS) {
+      // Draw trimmed logo with 2 row offset
+      const b = this.LOGO_BOUNDS;
+      for (let br = 0; br < b.h; br++) {
+        for (let bc = 0; bc < b.w; bc++) {
+          if (this.LOGO_BITMAP[b.minR + br][b.minC + bc] === "1")
+            mark(br + 2, bc); // +2 for the top 2 rows
         }
-        finalBitmap.push(row);
       }
-
-      const LOGO_ROWS = finalBitmap.length,
-        LOGO_COLS = finalBitmap[0].length;
-      this.ROWS = LOGO_ROWS + 2;
-      const logoOffR = 1;
+    } else if (isMobile) {
+      // Fallback for mobile if bounds not found
+      const logoOffR = 2;
       const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
-
       for (let br = 0; br < LOGO_ROWS; br++) {
         for (let bc = 0; bc < LOGO_COLS; bc++) {
-          if (finalBitmap[br][bc] === "1") mark(logoOffR + br, logoOffC + bc);
+          if (this.LOGO_BITMAP[br][bc] === "1")
+            mark(logoOffR + br, logoOffC + bc);
         }
       }
-
-      this.el.style.position = "relative";
-      this.el.style.height = this.ROWS * this.STEP + "px";
-      this.el.style.alignContent = "start";
-      parent.style.setProperty("padding", "0", "important");
     } else {
-      this.el.style.position = "absolute";
-      this.el.style.height = "100%";
-      this.el.style.alignContent = "center";
-      this.ROWS = Math.floor(h / this.STEP);
-      parent.style.removeProperty("padding");
-
-      const LOGO_ROWS = srcBitmap.length,
-        LOGO_COLS = srcBitmap[0].length;
-
-      // --- Restore Text Logic ---
+      // Desktop logo + text logic
       const TEXT_SCALE = Math.max(1, Math.floor(this.COLS / 100));
       const CHAR_W = 5,
         LETTER_SPC = 1,
@@ -328,14 +357,13 @@ class CheckboxToy {
       const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
       const textOffR = logoOffR + LOGO_ROWS + GAP;
 
-      // Stamp Logo
       for (let br = 0; br < LOGO_ROWS; br++) {
         for (let bc = 0; bc < LOGO_COLS; bc++) {
-          if (srcBitmap[br][bc] === "1") mark(logoOffR + br, logoOffC + bc);
+          if (this.LOGO_BITMAP[br][bc] === "1")
+            mark(logoOffR + br, logoOffC + bc);
         }
       }
 
-      // Stamp Text
       let currentR = textOffR;
       for (const line of lines) {
         let lineW = 0;
@@ -377,9 +405,10 @@ class CheckboxToy {
 
     const total = this.ROWS * this.COLS;
     let htmlArr = new Array(total);
+    const cbSize = `${this.STEP}px`;
     for (let i = 0; i < total; i++) {
       htmlArr[i] =
-        `<input type="checkbox" data-idx="${i}" style="margin:0;width:16px;height:16px;" ${checked.has(i) ? "checked" : ""}>`;
+        `<input type="checkbox" data-idx="${i}" style="margin:0;width:${cbSize};height:${cbSize};" ${checked.has(i) ? "checked" : ""}>`;
     }
     this.el.innerHTML = htmlArr.join("");
   }
@@ -389,7 +418,11 @@ class CheckboxToy {
     if (this._onUp) window.removeEventListener("pointerup", this._onUp);
     if (this.el) {
       const parent = this.el.parentElement;
-      if (parent) parent.style.removeProperty("padding");
+      if (parent) {
+        parent.style.removeProperty("padding");
+        parent.style.removeProperty("flex");
+        parent.style.removeProperty("align-content");
+      }
       this.el.remove();
     }
   }

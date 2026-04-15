@@ -659,6 +659,7 @@ a:focus-visible {
         height: auto;
         position: static;
         background-color: var(--color-sidebar-dynamic);
+        flex: 1; /* Add this to fill space */
     }
 
     .site-title {
