@@ -46,7 +46,8 @@ class DrawingToy {
     }
 
     // Handle window resize
-    window.addEventListener("resize", () => this.resizeCanvas());
+    this._resizeHandler = () => this.resizeCanvas();
+    window.addEventListener("resize", this._resizeHandler);
   }
 
   createCanvas() {
@@ -214,8 +215,12 @@ class DrawingToy {
   resizeCanvas() {
     if (!this.canvas) return;
 
-    const maxWidth = Math.min(window.innerWidth - 100, 800);
-    const maxHeight = Math.min(window.innerHeight - 200, 600);
+    const mainContentArea = document.querySelector(".main-content-area");
+    const areaW = mainContentArea ? mainContentArea.clientWidth : window.innerWidth;
+    const areaH = mainContentArea ? mainContentArea.clientHeight : window.innerHeight;
+
+    const maxWidth = Math.max(280, Math.min(areaW - 40, 1100));
+    const maxHeight = Math.max(200, Math.min(areaH - 120, 750));
 
     // Maintain aspect ratio
     const aspectRatio = 4 / 3;
@@ -227,10 +232,10 @@ class DrawingToy {
       canvasWidth = maxHeight * aspectRatio;
     }
 
-    this.canvas.width = canvasWidth;
-    this.canvas.height = canvasHeight;
-    this.canvas.style.width = canvasWidth + "px";
-    this.canvas.style.height = canvasHeight + "px";
+    this.canvas.width = Math.floor(canvasWidth);
+    this.canvas.height = Math.floor(canvasHeight);
+    this.canvas.style.width = Math.floor(canvasWidth) + "px";
+    this.canvas.style.height = Math.floor(canvasHeight) + "px";
 
     // Restore context settings after resize
     if (this.ctx) {
@@ -325,6 +330,9 @@ class DrawingToy {
   }
 
   destroy() {
+    if (this._resizeHandler) {
+      window.removeEventListener("resize", this._resizeHandler);
+    }
     const container = document.getElementById("drawing-container");
     if (container) {
       container.remove();

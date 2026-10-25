@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+from datetime import date
 import json
 import re
 import sys
@@ -186,9 +187,13 @@ def extract_testimonials(soup: BeautifulSoup) -> list[dict[str, Any]]:
 def extract_events(
     soup: BeautifulSoup,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Extract upcoming and past events from the page content."""
+    """Extract upcoming and past events from the page content.
+    Automatically categorizes events based on date so past events are never
+    scheduled and upcoming events are always accurate.
+    """
     upcoming_events = []
     past_events = []
+    today = date.today()
 
     current_section = None
 
@@ -208,6 +213,7 @@ def extract_events(
             if date_match:
                 day, month, year = date_match.groups()
                 iso_date = f"{year}-{month}-{day}"
+                event_date = date(int(year), int(month), int(day))
 
                 # Extract venue name from link
                 link = element.find("a")
@@ -230,10 +236,15 @@ def extract_events(
                     },
                 }
 
-                if current_section == "upcoming":
+                # Automatically classify by date: on or after today is upcoming
+                if event_date >= today:
                     upcoming_events.append(event)
                 else:
                     past_events.append(event)
+
+    # Sort upcoming soonest first, past newest first
+    upcoming_events.sort(key=lambda x: x["startDate"])
+    past_events.sort(key=lambda x: x["startDate"], reverse=True)
 
     return upcoming_events, past_events
 

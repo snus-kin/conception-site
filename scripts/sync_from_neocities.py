@@ -15,11 +15,13 @@ Usage:
     ./scripts/sync_from_neocities.py --dry-run    # Show what would be synced without making changes
 
 Environment:
-    NEOCITIES_API_TOKEN: Your Neocities API token (required)
+    NEOCITIES_API_TOKEN or NEOCITIES_API_KEY: Your Neocities API token (required)
                          Get it from: https://neocities.org/settings/YOUR_SITE_NAME
 
     You can also create a .env file in the project root with:
         NEOCITIES_API_TOKEN=your_token_here
+        # or
+        NEOCITIES_API_KEY=your_token_here
 """
 
 import argparse
@@ -27,6 +29,7 @@ import hashlib
 import os
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 import httpx
 
@@ -34,17 +37,33 @@ import httpx
 NEOCITIES_API_BASE = "https://neocities.org/api"
 SITE_BASE_URL = "https://conceivedconception.neocities.org"
 
-# Files/directories to skip syncing (these shouldn't be on Neocities anyway)
-SKIP_PATTERNS = {
+# Directories to skip entirely
+SKIP_DIRS = {
     ".git",
     ".github",
+    "venv",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".cache",
+    "dist",
+}
+
+# Individual filenames to skip (these shouldn't be synced or are generated during deploy)
+SKIP_FILES = {
     ".gitignore",
     ".env",
-    "scripts",
     ".DS_Store",
     "desktop.ini",
+    "Thumbs.db",
     "README.md",
     "sitemap.xml",
+}
+
+# Extensions to skip (e.g. repo-only Python build scripts)
+SKIP_EXTENSIONS = {
+    ".py",
+    ".pyc",
 }
 
 
@@ -56,15 +75,17 @@ def load_env_file(project_root: Path) -> None:
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 key, _, value = line.partition("=")
-                os.environ.setdefault(key.strip(), value.strip())
+                cleaned_value = value.strip().strip("'\"")
+                os.environ.setdefault(key.strip(), cleaned_value)
 
 
 def get_api_token() -> str:
-    """Get the Neocities API token from environment."""
-    token = os.environ.get("NEOCITIES_API_TOKEN")
+    """Get the Neocities API token from environment (supports TOKEN or KEY)."""
+    token = os.environ.get("NEOCITIES_API_TOKEN") or os.environ.get("NEOCITIES_API_KEY")
     if not token:
         print(
-            "Error: NEOCITIES_API_TOKEN environment variable not set", file=sys.stderr
+            "Error: NEOCITIES_API_TOKEN or NEOCITIES_API_KEY environment variable not set",
+            file=sys.stderr,
         )
         print("\nTo get your API token:", file=sys.stderr)
         print(
@@ -83,8 +104,18 @@ def get_api_token() -> str:
 
 def should_skip(path: str) -> bool:
     """Check if a path should be skipped during sync."""
-    parts = Path(path).parts
-    return any(part in SKIP_PATTERNS for part in parts)
+    p = Path(path)
+    # Check directory parts
+    for part in p.parts[:-1]:
+        if part in SKIP_DIRS:
+            return True
+    # Check filename (exact match or hidden file starting with .)
+    if p.name in SKIP_FILES or p.name.startswith("."):
+        return True
+    # Check extension
+    if p.suffix.lower() in SKIP_EXTENSIONS:
+        return True
+    return False
 
 
 def get_remote_file_list(client: httpx.Client, token: str) -> list[dict]:
@@ -103,9 +134,13 @@ def get_remote_file_list(client: httpx.Client, token: str) -> list[dict]:
 
 
 def download_file(client: httpx.Client, path: str) -> bytes:
-    """Download a file from the Neocities site."""
-    url = f"{SITE_BASE_URL}/{path}"
-    response = client.get(url)
+    """Download a file from the Neocities site with cache-busting headers."""
+    encoded_path = quote(path, safe="/")
+    url = f"{SITE_BASE_URL}/{encoded_path}"
+    response = client.get(
+        url,
+        headers={"Cache-Control": "no-cache", "Pragma": "no-cache"},
+    )
     response.raise_for_status()
     return response.content
 
@@ -122,13 +157,13 @@ def get_local_sha1(file_path: Path) -> str | None:
     return compute_sha1(file_path.read_bytes())
 
 
-def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
-    """Sync files from Neocities to the local repository."""
+def sync_from_neocities(project_root: Path, dry_run: bool = False) -> bool:
+    """Sync files from Neocities to the local repository. Returns True if successful."""
     token = get_api_token()
 
     print(f"{'[DRY RUN] ' if dry_run else ''}Syncing from Neocities...\n")
 
-    with httpx.Client(timeout=30.0) as client:
+    with httpx.Client(timeout=30.0, follow_redirects=True) as client:
         # Get list of files on Neocities (includes SHA1 hashes!)
         print("Fetching file list from Neocities...")
         remote_files = get_remote_file_list(client, token)
@@ -136,6 +171,7 @@ def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
         files_updated = 0
         files_added = 0
         files_unchanged = 0
+        errors = 0
 
         for file_info in remote_files:
             path = file_info.get("path", "").lstrip("/")
@@ -156,21 +192,21 @@ def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
                 files_unchanged += 1
                 continue
 
-            # Files differ or local doesn't exist - need to download
-            try:
-                remote_content = download_file(client, path)
-            except httpx.HTTPError as e:
-                print(f"  Warning: Failed to download {path}: {e}")
-                continue
-
+            # Files differ or local doesn't exist
             if local_sha1 is None:
                 # New file from Neocities
                 action = "Would add" if dry_run else "Added"
                 print(f"  {action}: {path}")
 
                 if not dry_run:
-                    local_path.parent.mkdir(parents=True, exist_ok=True)
-                    local_path.write_bytes(remote_content)
+                    try:
+                        remote_content = download_file(client, path)
+                        local_path.parent.mkdir(parents=True, exist_ok=True)
+                        local_path.write_bytes(remote_content)
+                    except httpx.HTTPError as e:
+                        print(f"  Error: Failed to download {path}: {e}", file=sys.stderr)
+                        errors += 1
+                        continue
                 files_added += 1
             else:
                 # Files differ
@@ -178,7 +214,14 @@ def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
                 print(f"  {action}: {path}")
 
                 if not dry_run:
-                    local_path.write_bytes(remote_content)
+                    try:
+                        remote_content = download_file(client, path)
+                        local_path.parent.mkdir(parents=True, exist_ok=True)
+                        local_path.write_bytes(remote_content)
+                    except httpx.HTTPError as e:
+                        print(f"  Error: Failed to download {path}: {e}", file=sys.stderr)
+                        errors += 1
+                        continue
                 files_updated += 1
 
         # Summary
@@ -186,6 +229,8 @@ def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
         print(f"  Files {'would be ' if dry_run else ''}updated: {files_updated}")
         print(f"  Files {'would be ' if dry_run else ''}added: {files_added}")
         print(f"  Files unchanged: {files_unchanged}")
+        if errors > 0:
+            print(f"  Errors during sync: {errors}", file=sys.stderr)
 
         if dry_run and (files_updated > 0 or files_added > 0):
             print("\nRun without --dry-run to apply these changes.")
@@ -193,6 +238,8 @@ def sync_from_neocities(project_root: Path, dry_run: bool = False) -> None:
         if not dry_run and (files_updated > 0 or files_added > 0):
             print("\nDon't forget to commit and push the changes!")
             print("  git add -A && git commit -m 'chore: sync from Neocities'")
+
+        return errors == 0
 
 
 def main() -> None:
@@ -213,7 +260,9 @@ def main() -> None:
     # Load .env file if present
     load_env_file(project_root)
 
-    sync_from_neocities(project_root, dry_run=args.dry_run)
+    success = sync_from_neocities(project_root, dry_run=args.dry_run)
+    if not success:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
