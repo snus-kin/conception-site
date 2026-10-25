@@ -2,3 +2,5 @@
 desktop.ini
 .env
 sitemap.xml
+__pycache__/
+*.pyc

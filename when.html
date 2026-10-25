@@ -6,11 +6,11 @@
         <title>When | Conception</title>
         <meta
             name="description"
-            content="Upcoming and past Conception open mic events in Leeds, UK. Find dates for our experimental performance nights at The Fox & Newt and Wharf Chambers."
+            content="Upcoming and past Conception open mic events in Leeds, UK. Find dates for our experimental performance nights at Hope House, The Fox & Newt, and Wharf Chambers."
         />
         <meta
             name="keywords"
-            content="open mic Leeds, experimental music Leeds, live music events Leeds, The Fox and Newt, Wharf Chambers, performance nights UK"
+            content="open mic Leeds, experimental music Leeds, live music events Leeds, Hope House, The Fox and Newt, Wharf Chambers, performance nights UK"
         />
         <link
             rel="canonical"
@@ -53,7 +53,7 @@
                 "@context": "https://schema.org",
                 "@type": "EventSeries",
                 "name": "Conception Open Mic",
-                "description": "Upcoming and past Conception open mic events in Leeds, UK. Find dates for our experimental performance nights at The Fox & Newt and Wharf Chambers.",
+                "description": "Upcoming and past Conception open mic events in Leeds, UK. Find dates for our experimental performance nights at Hope House, The Fox & Newt, and Wharf Chambers.",
                 "url": "https://conceivedconception.neocities.org/when.html",
                 "location": {
                     "@type": "Place",
@@ -75,29 +75,13 @@
                 "eventSchedule": [
                     {
                         "@type": "Event",
-                        "name": "Conception Open Mic - May 2026",
-                        "startDate": "2026-05-18",
+                        "name": "Conception Open Mic - December 2026",
+                        "startDate": "2026-12-11",
                         "eventStatus": "https://schema.org/EventScheduled",
                         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
                         "location": {
                             "@type": "Place",
-                            "name": "The Fox & Newt",
-                            "address": {
-                                "@type": "PostalAddress",
-                                "addressLocality": "Leeds",
-                                "addressCountry": "UK"
-                            }
-                        }
-                    },
-                    {
-                        "@type": "Event",
-                        "name": "Conception Open Mic - June 2026",
-                        "startDate": "2026-06-15",
-                        "eventStatus": "https://schema.org/EventScheduled",
-                        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-                        "location": {
-                            "@type": "Place",
-                            "name": "The Fox & Newt",
+                            "name": "Hope House",
                             "address": {
                                 "@type": "PostalAddress",
                                 "addressLocality": "Leeds",
@@ -116,6 +100,7 @@
         <link href="style.css" rel="stylesheet" type="text/css" media="all" />
         <script src="scripts/colorize.js"></script>
         <script src="scripts/animated-favicon.js"></script>
+        <script src="scripts/events.js"></script>
     </head>
     <body>
         <!-- Mobile Header -->
@@ -131,7 +116,21 @@
 
                         <h2>Upcoming Events</h2>
 
-                        <ul class="events-list" aria-label="Upcoming events">
+                        <ul class="events-list" id="upcoming-events" aria-label="Upcoming events">
+                            <li>
+                                11/12/2026 18:30-21:30,
+                                <a
+                                    href="https://mapcharity.org/"
+                                    target="_blank"
+                                    rel="noopener"
+                                    >Hope House</a
+                                >
+                            </li>
+                        </ul>
+
+                        <h2>Previous Events</h2>
+
+                        <ul class="events-list" id="previous-events" aria-label="Previous events">
                             <li>
                                 15/06/2026 19:00-23:00,
                                 <a
@@ -141,11 +140,6 @@
                                     >The Fox & Newt</a
                                 >
                             </li>
-                        </ul>
-
-                        <h2>Previous Events</h2>
-
-                        <ul class="events-list" aria-label="Previous events">
                             <li>
                                 18/05/2026 19:00-23:00,
                                 <a
@@ -155,7 +149,6 @@
                                     >The Fox & Newt</a
                                 >
                             </li>
-                            
                             <li>
                                 20/04/2026 19:00-23:00,
                                 <a
@@ -165,7 +158,6 @@
                                     >The Fox & Newt</a
                                 >
                             </li>
-
                             <li>
                                 16/12/2025 19:00-23:00,
                                 <a

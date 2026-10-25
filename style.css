@@ -379,6 +379,12 @@ a:focus-visible {
     border-left: 2px solid #ddd;
 }
 
+.events-list li.no-events {
+    font-style: italic;
+    color: #666;
+    border-left-color: #bbb;
+}
+
 .links-list li {
     margin-bottom: 1.5rem;
 }

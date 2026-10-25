@@ -274,23 +274,39 @@ class CheckboxToy {
       parent.style.setProperty("padding", "0", "important");
       parent.style.flex = "none";
     } else {
-      // Desktop: use original logic (or full bitmap width)
-      this.COLS = isMobile ? 56 : Math.floor(w / 16);
-      this.STEP = Math.floor(w / this.COLS);
-      
-      if (isMobile) {
-        this.ROWS = LOGO_ROWS + 4;
-        parent.style.setProperty("padding", "0", "important");
-        parent.style.flex = "none";
-      } else {
-        this.ROWS = Math.floor(h / this.STEP);
-        parent.style.removeProperty("padding");
-        parent.style.removeProperty("flex");
-      }
+      // Desktop: calculate required content height with trimmed logo + text
+      // so everything comfortably fits on 1080p and various desktop displays
+      const b = this.LOGO_BOUNDS;
+      const logoH = b ? b.h : LOGO_ROWS;
+      const logoW = b ? b.w : LOGO_COLS;
+      const charH = 7, lineSpc = 1;
+      const GAP = 3;
 
-      this.el.style.position = isMobile ? "relative" : "absolute";
-      this.el.style.height = isMobile ? (this.ROWS * this.STEP + "px") : "100%";
-      this.el.style.alignContent = isMobile ? "start" : "center";
+      // Group words into lines for desktop (aiming for 3 lines on wide screens)
+      // E.g. ["CONCEPTION", "EXPERIMENTALL", "OPEN MIC NIGHT"]
+      const CHAR_W = 5, LETTER_SPC = 1, WORD_SPC = 3;
+      const lines = [
+        ["CONCEPTION"],
+        ["EXPERIMENTALL"],
+        ["OPEN", "MIC", "NIGHT"]
+      ];
+
+      const textH = lines.length * charH + (lines.length - 1) * lineSpc;
+      const totalContentH = logoH + GAP + textH;
+
+      // Calculate step (checkbox size) to guarantee totalContentH fits with padding on 1080p
+      const minPaddingRows = 6;
+      const neededRows = totalContentH + minPaddingRows;
+      this.STEP = Math.max(10, Math.min(16, Math.floor(h / neededRows)));
+      this.ROWS = Math.floor(h / this.STEP);
+      this.COLS = Math.floor(w / this.STEP);
+
+      parent.style.removeProperty("padding");
+      parent.style.removeProperty("flex");
+
+      this.el.style.position = "absolute";
+      this.el.style.height = "100%";
+      this.el.style.alignContent = "center";
     }
 
     const checked = new Set();
@@ -308,59 +324,36 @@ class CheckboxToy {
             mark(br + 2, bc); // +2 for the top 2 rows
         }
       }
-    } else if (isMobile) {
-      // Fallback for mobile if bounds not found
-      const logoOffR = 2;
-      const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
-      for (let br = 0; br < LOGO_ROWS; br++) {
-        for (let bc = 0; bc < LOGO_COLS; bc++) {
-          if (this.LOGO_BITMAP[br][bc] === "1")
-            mark(logoOffR + br, logoOffC + bc);
-        }
-      }
     } else {
-      // Desktop logo + text logic
-      const TEXT_SCALE = Math.max(1, Math.floor(this.COLS / 100));
-      const CHAR_W = 5,
-        LETTER_SPC = 1,
-        WORD_SPC = 3;
-      const lines = [];
-      let currentLine = [],
-        currentWidth = 0;
+      // Desktop logo + text logic with trimmed logo
+      const b = this.LOGO_BOUNDS;
+      const logoH = b ? b.h : LOGO_ROWS;
+      const logoW = b ? b.w : LOGO_COLS;
+      const minR = b ? b.minR : 0;
+      const minC = b ? b.minC : 0;
 
-      for (const word of this.WORDS) {
-        const wordW =
-          (word.length * CHAR_W + (word.length - 1) * LETTER_SPC) * TEXT_SCALE;
-        if (
-          currentLine.length === 0 ||
-          currentWidth + WORD_SPC * TEXT_SCALE + wordW <= this.COLS * 0.9
-        ) {
-          currentLine.push(word);
-          currentWidth +=
-            (currentLine.length === 1 ? 0 : WORD_SPC * TEXT_SCALE) + wordW;
-        } else {
-          lines.push(currentLine);
-          currentLine = [word];
-          currentWidth = wordW;
-        }
-      }
-      if (currentLine.length > 0) lines.push(currentLine);
+      const CHAR_W = 5, LETTER_SPC = 1, WORD_SPC = 3;
+      const charH = 7, lineSpc = 1;
+      const GAP = 3;
 
-      const charH = 7,
-        lineSpc = 1;
-      const textH =
-        (lines.length * charH + (lines.length - 1) * lineSpc) * TEXT_SCALE;
-      const GAP = Math.max(1, Math.floor(this.ROWS * 0.03));
-      const totalContentH = LOGO_ROWS + GAP + textH;
+      const lines = [
+        ["CONCEPTION"],
+        ["EXPERIMENTALL"],
+        ["OPEN", "MIC", "NIGHT"]
+      ];
 
-      const logoOffR = Math.floor((this.ROWS - totalContentH) / 2);
-      const logoOffC = Math.floor((this.COLS - LOGO_COLS) / 2);
-      const textOffR = logoOffR + LOGO_ROWS + GAP;
+      const textH = lines.length * charH + (lines.length - 1) * lineSpc;
+      const totalContentH = logoH + GAP + textH;
 
-      for (let br = 0; br < LOGO_ROWS; br++) {
-        for (let bc = 0; bc < LOGO_COLS; bc++) {
-          if (this.LOGO_BITMAP[br][bc] === "1")
+      const logoOffR = Math.max(2, Math.floor((this.ROWS - totalContentH) / 2));
+      const logoOffC = Math.max(0, Math.floor((this.COLS - logoW) / 2));
+      const textOffR = logoOffR + logoH + GAP;
+
+      for (let br = 0; br < logoH; br++) {
+        for (let bc = 0; bc < logoW; bc++) {
+          if (this.LOGO_BITMAP[minR + br][minC + bc] === "1") {
             mark(logoOffR + br, logoOffC + bc);
+          }
         }
       }
 
@@ -374,29 +367,22 @@ class CheckboxToy {
               (word.length - 1) * LETTER_SPC +
               (i === 0 ? 0 : WORD_SPC)),
         );
-        let currentC = Math.floor((this.COLS - lineW * TEXT_SCALE) / 2);
+        let currentC = Math.max(0, Math.floor((this.COLS - lineW) / 2));
         for (const word of line) {
           for (const char of word) {
             const bitmap = this.FONT[char] || this.FONT["A"];
             for (let r = 0; r < 7; r++) {
               for (let c = 0; c < 5; c++) {
                 if (bitmap[r][c] === "1") {
-                  for (let sr = 0; sr < TEXT_SCALE; sr++) {
-                    for (let sc = 0; sc < TEXT_SCALE; sc++) {
-                      mark(
-                        currentR + r * TEXT_SCALE + sr,
-                        currentC + c * TEXT_SCALE + sc,
-                      );
-                    }
-                  }
+                  mark(currentR + r, currentC + c);
                 }
               }
             }
-            currentC += (CHAR_W + LETTER_SPC) * TEXT_SCALE;
+            currentC += CHAR_W + LETTER_SPC;
           }
-          currentC += (WORD_SPC - LETTER_SPC) * TEXT_SCALE;
+          currentC += WORD_SPC - LETTER_SPC;
         }
-        currentR += (charH + lineSpc) * TEXT_SCALE;
+        currentR += charH + lineSpc;
       }
     }
 

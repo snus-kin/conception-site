@@ -230,35 +230,43 @@ class LetterBeads {
     const availableWidth = containerRect.width - 40; // 20px margin on each side
     const letterSpacing = this.beadSize + 15;
 
+    // Group into cohesive phrases: CONCEPTION, EXPERIMENTALL, OPEN MIC NIGHT
+    const phrases = ["CONCEPTION", "EXPERIMENTALL", "OPEN MIC NIGHT"];
     let lines = [];
 
-    for (const word of words) {
-      if (word === "") {
-        lines.push("");
-        continue;
-      }
-
-      const wordWidth = word.length * letterSpacing;
-
-      if (wordWidth <= availableWidth) {
-        lines.push(word);
-      } else if (isMobile) {
-        // Break long words into chunks that fit
-        const maxCharsPerLine = Math.floor(availableWidth / letterSpacing);
-        for (let i = 0; i < word.length; i += maxCharsPerLine) {
-          const chunk = word.slice(i, i + maxCharsPerLine);
-          lines.push(chunk);
-        }
+    for (const phrase of phrases) {
+      const phraseWidth = phrase.length * letterSpacing;
+      if (phraseWidth <= availableWidth) {
+        lines.push(phrase);
       } else {
-        lines.push(word);
+        const parts = phrase.split(" ");
+        let current = "";
+        for (const p of parts) {
+          const test = current ? `${current} ${p}` : p;
+          if (test.length * letterSpacing <= availableWidth) {
+            current = test;
+          } else {
+            if (current) lines.push(current);
+            current = p;
+          }
+        }
+        if (current) lines.push(current);
       }
     }
 
-    // Calculate starting position (centered horizontally, upper third vertically)
+    // Calculate starting position centered vertically and horizontally
+    const lineSpacing = this.beadSize + 22; // Vertical spacing between lines
+    const totalBlockHeight = (lines.length - 1) * lineSpacing + this.beadSize;
     const baseY = isMobile
       ? containerRect.height * 0.15
-      : containerRect.height * 0.3;
-    const lineSpacing = this.beadSize + 25; // Vertical spacing between lines
+      : Math.max(30, Math.floor((containerRect.height - totalBlockHeight) / 2));
+
+    this.titleBounds = {
+      minX: Infinity,
+      maxX: -Infinity,
+      minY: Infinity,
+      maxY: -Infinity,
+    };
 
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       const line = lines[lineIndex];
@@ -278,7 +286,7 @@ class LetterBeads {
           continue;
         }
 
-        const baseX = startX + i * (this.beadSize + 15);
+        const baseX = startX + i * letterSpacing;
 
         // Try to find a valid position with overlap detection
         let attempts = 0;
@@ -287,9 +295,9 @@ class LetterBeads {
           validPosition = false;
 
         do {
-          // Add random offset (±20px in each direction for tighter grouping)
-          const offsetX = (Math.random() - 0.5) * 40;
-          const offsetY = (Math.random() - 0.5) * 40;
+          // Add subtle random jitter for organic letter-bead necklace feel
+          const offsetX = (Math.random() - 0.5) * 24;
+          const offsetY = (Math.random() - 0.5) * 24;
 
           finalX = baseX + offsetX;
           finalY = currentY + offsetY;
@@ -313,10 +321,18 @@ class LetterBeads {
           attempts++;
         } while (!validPosition && attempts < 20);
 
-        // If we found a valid position, create the bead
-        if (validPosition) {
-          this.createBeadAtPosition(char, container, finalX, finalY);
+        // Fallback to baseX, currentY if jitter didn't find spot
+        if (!validPosition) {
+          finalX = Math.max(20, Math.min(containerRect.width - this.beadSize - 20, baseX));
+          finalY = Math.max(20, Math.min(containerRect.height - this.beadSize - 20, currentY));
         }
+
+        this.titleBounds.minX = Math.min(this.titleBounds.minX, finalX);
+        this.titleBounds.maxX = Math.max(this.titleBounds.maxX, finalX + this.beadSize);
+        this.titleBounds.minY = Math.min(this.titleBounds.minY, finalY);
+        this.titleBounds.maxY = Math.max(this.titleBounds.maxY, finalY + this.beadSize);
+
+        this.createBeadAtPosition(char, container, finalX, finalY);
       }
     }
   }
@@ -602,22 +618,17 @@ class LetterBeads {
   checkPositionOverlap(x, y, size) {
     const buffer = 10; // Minimum distance between beads
 
-    // Increased protection around title and tagline text
-    const mainContentArea = document.querySelector(".main-content-area");
-    const containerRect = mainContentArea.getBoundingClientRect();
-    const textAreaY = containerRect.height * 0.2;
-    const textAreaHeight = 6 * (this.beadSize + 25) + 80; // More padding around text
-    const textAreaStartX = containerRect.width * 0.1;
-    const textAreaEndX = containerRect.width * 0.9;
-
-    // Avoid title and tagline area with generous buffer
-    if (
-      y > textAreaY - 40 &&
-      y < textAreaY + textAreaHeight &&
-      x > textAreaStartX &&
-      x < textAreaEndX
-    ) {
-      return false; // Too close to text area
+    // Protect title beads area so random beads don't overlap the title
+    if (this.titleBounds && isFinite(this.titleBounds.minX)) {
+      const pad = 25;
+      if (
+        x + size >= this.titleBounds.minX - pad &&
+        x <= this.titleBounds.maxX + pad &&
+        y + size >= this.titleBounds.minY - pad &&
+        y <= this.titleBounds.maxY + pad
+      ) {
+        return false; // Too close to title text
+      }
     }
 
     for (const bead of this.beads) {
